@@ -7,7 +7,7 @@ The primary goal is to enable daily sales operations without requiring an intern
 
 This project is intended for real-world use in a small family business environment, prioritizing reliability, simplicity, and clarity over advanced features.
 
-### Project Goals
+## Project Goals
 
 - Enable daily sales transactions on a single device
 - Operate fully offline
@@ -17,33 +17,33 @@ This project is intended for real-world use in a small family business environme
 
 ## How it's made:
 
-_Techstack: _ Flutter, Dart, SQLite through SQLFlite
+Techstack: Flutter, Dart, SQLite through SQLFlite
 
-### Features
+## Features
 
 The MVP of the project includes the core features:
 
-#### Product Management
+### Product Management
 
 - Add, edit and customize products
 - Manage product pricing and basic details
 
-#### Point-of-Sale Interface
+### Point-of-Sale Interface
 
 - Simple POS Screen for creating sales
 - Add/remove items from a cart
 - Calculate totals and sale logic
 
-#### Sales & Transactions
+### Sales & Transactions
 
 - Record completed sales
 - Store transaction data locally through databases and repositories
 
-#### Basic Data Analytics
+### Basic Data Analytics
 
 - View sale summaries accurately by general, product, and categories within a selected date range
 
-### Nice-to-have Features
+## Nice-to-have Features
 
 These feature are not require for MVP completion but may be added later:
 
