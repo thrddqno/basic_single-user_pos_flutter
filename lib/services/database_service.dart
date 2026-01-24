@@ -115,7 +115,7 @@ class DatabaseService {
   ''');
   }
 
-  //crud operations for category
+  //----CATEGORY CRUD ----
   //create
   Future<void> insertCategory(Category category) async {
     final db = await _databaseService.database;
@@ -149,4 +149,6 @@ class DatabaseService {
     final db = await _databaseService.database;
     db.delete('categories', where: 'id = ?', whereArgs: [id]);
   }
+
+  //----MODIFIER CRUD ----
 }
