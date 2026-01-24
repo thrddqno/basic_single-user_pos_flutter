@@ -41,4 +41,25 @@ class Receipt {
 
   factory Receipt.fromJson(String source) =>
       Receipt.fromMap(jsonDecode(source));
+
+  @override
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('Receipt #${id ?? "N/A"}');
+    buffer.writeln('Date: ${date.toIso8601String()}');
+    buffer.writeln('Payment Method: $paymentMethod');
+    if (cashReceived != null) buffer.writeln('Cash Received: $cashReceived');
+    buffer.writeln('Items:');
+
+    for (var item in items) {
+      final optionNames = item.options.map((o) => o.name).join(', ');
+      buffer.writeln(
+        '- ${item.product.name} x${item.quantity} ${optionNames.isNotEmpty ? "[$optionNames]" : ""} -> Total: ${item.total}',
+      );
+    }
+
+    buffer.writeln('Total: $total');
+    return buffer.toString();
+  }
 }
