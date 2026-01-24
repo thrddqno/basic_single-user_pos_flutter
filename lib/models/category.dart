@@ -15,4 +15,7 @@ class Category {
 
   factory Category.fromJson(String source) =>
       Category.fromMap(jsonDecode(source));
+
+  @override
+  String toString() => 'Category(id: $id, name: $name)';
 }

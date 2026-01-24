@@ -1,22 +1,20 @@
-import 'package:basic_single_user_pos_flutter/models/category.dart';
-import 'package:basic_single_user_pos_flutter/models/modifier.dart';
 import 'dart:convert';
 
 class Product {
   final int? id;
   final String name;
-  final Category category;
+  final int categoryId;
   final double price;
   // list of enabled modifier
-  final List<Modifier> enabledModifiers;
+  final List<int> enabledModifierIds;
   final double? cost;
 
   Product({
     this.id,
     required this.name,
-    required this.category,
+    this.categoryId = 1,
     required this.price,
-    this.enabledModifiers = const [],
+    this.enabledModifierIds = const [],
     this.cost,
   });
 
@@ -24,11 +22,9 @@ class Product {
   Map<String, dynamic> toMap() => {
     'id': id,
     'name': name,
-    'category': category.toMap(),
+    'category_id': categoryId,
     'price': price,
-    'enabledModifiers': enabledModifiers
-        .map((modifier) => modifier.toMap())
-        .toList(),
+    'enabled_modifier_ids': jsonEncode(enabledModifierIds),
     'cost': cost,
   };
 
@@ -36,14 +32,12 @@ class Product {
   factory Product.fromMap(Map<String, dynamic> map) => Product(
     id: map['id'],
     name: map['name'],
-    category: Category.fromMap(map['category']),
+    categoryId: map['category_id'],
     price: map['price'],
     // list enabled modifiers, if null, then null
-    enabledModifiers:
-        (map['enabledModifiers'] as List<dynamic>?)
-            ?.map((modifier) => Modifier.fromMap(modifier))
-            .toList() ??
-        [],
+    enabledModifierIds: map['enabled_modifier_ids'] != null
+        ? List<int>.from(jsonDecode(map['enabled_modifier_ids']))
+        : [],
     cost: map['cost'],
   );
 
@@ -51,4 +45,7 @@ class Product {
 
   factory Product.fromJson(String source) =>
       Product.fromMap(jsonDecode(source));
+  @override
+  String toString() =>
+      'Product(id: $id, name: $name, categoryId: $categoryId, price: $price, cost: $cost, enabledModifierIds: $enabledModifierIds)';
 }
