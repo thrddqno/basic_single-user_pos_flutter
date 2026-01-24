@@ -19,6 +19,7 @@ class ProductRepository {
       'category_id': product.categoryId,
       'price': product.price,
       'cost': product.cost,
+      'color': product.color,
       'enabled_modifier_ids': jsonEncode(product.enabledModifierIds),
     }, conflictAlgorithm: ConflictAlgorithm.replace);
 
@@ -45,6 +46,7 @@ class ProductRepository {
       categoryId: row['category_id'] as int,
       price: (row['price'] as num).toDouble(),
       cost: (row['cost'] as num?)?.toDouble(),
+      color: row['color'] as String,
       enabledModifierIds: (row['enabled_modifier_ids'] != null)
           ? List<int>.from(jsonDecode(row['enabled_modifier_ids'] as String))
           : [],
@@ -63,6 +65,7 @@ class ProductRepository {
         categoryId: row['category_id'] as int,
         price: (row['price'] as num).toDouble(),
         cost: (row['cost'] as num?)?.toDouble(),
+        color: row['color'] as String,
         enabledModifierIds: (row['enabled_modifier_ids'] != null)
             ? List<int>.from(jsonDecode(row['enabled_modifier_ids'] as String))
             : [],
@@ -80,6 +83,7 @@ class ProductRepository {
         'category_id': product.categoryId,
         'price': product.price,
         'cost': product.cost,
+        'color': product.color,
         'enabled_modifier_ids': jsonEncode(product.enabledModifierIds),
       },
       where: 'id = ?',

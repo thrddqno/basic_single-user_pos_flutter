@@ -44,12 +44,17 @@ void main() {
 
     // --- Setup product ---
     final productId1 = await productRepo.insert(
-      Product(name: 'Cheese Stick', categoryId: catId, price: 40),
+      Product(
+        name: 'Cheese Stick',
+        categoryId: catId,
+        price: 40,
+        color: 'Yellow',
+      ),
     );
     final product1 = await productRepo.getById(productId1);
 
     final productId2 = await productRepo.insert(
-      Product(name: 'Frenchies', categoryId: catId, price: 50),
+      Product(name: 'Frenchies', categoryId: catId, price: 50, color: 'Blue'),
     );
     final product2 = await productRepo.getById(productId2);
     // --- Setup modifier and options ---

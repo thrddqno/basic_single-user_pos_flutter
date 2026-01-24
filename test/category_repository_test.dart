@@ -28,9 +28,16 @@ void main() {
     final category = Category(name: 'Beverages');
     final categoryId = await categoryRepo.insert(category);
 
-    await productRepo.insert(Product(name: 'Cheese Stick', price: 40));
+    await productRepo.insert(
+      Product(name: 'Cheese Stick', price: 40, color: 'Blue'),
+    );
     final productId = await productRepo.insert(
-      Product(name: 'Iced Tea', categoryId: categoryId, price: 49),
+      Product(
+        name: 'Iced Tea',
+        categoryId: categoryId,
+        price: 49,
+        color: 'Yellow',
+      ),
     );
 
     final products = await productRepo.getAll();

@@ -84,6 +84,7 @@ class DatabaseService {
       category_id INTEGER NOT NULL DEFAULT 1,
       price REAL NOT NULL,
       cost REAL,
+      color TEXT,
       enabled_modifier_ids TEXT,
       FOREIGN KEY(category_id) REFERENCES categories(id)
     )

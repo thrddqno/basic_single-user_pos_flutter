@@ -8,6 +8,7 @@ class Product {
   // list of enabled modifier
   final List<int> enabledModifierIds;
   final double? cost;
+  final String color;
 
   Product({
     this.id,
@@ -16,6 +17,7 @@ class Product {
     required this.price,
     this.enabledModifierIds = const [],
     this.cost,
+    required this.color,
   });
 
   //convert to map
@@ -26,6 +28,7 @@ class Product {
     'price': price,
     'enabled_modifier_ids': jsonEncode(enabledModifierIds),
     'cost': cost,
+    'color': color,
   };
 
   // from map, parse to product
@@ -39,6 +42,7 @@ class Product {
         ? List<int>.from(jsonDecode(map['enabled_modifier_ids']))
         : [],
     cost: map['cost'],
+    color: map['color'],
   );
 
   String toJson() => json.encode(toMap());
@@ -47,5 +51,5 @@ class Product {
       Product.fromMap(jsonDecode(source));
   @override
   String toString() =>
-      'Product(id: $id, name: $name, categoryId: $categoryId, price: $price, cost: $cost, enabledModifierIds: $enabledModifierIds)';
+      'Product(id: $id, name: $name, categoryId: $categoryId, price: $price, cost: $cost, color: $color, enabledModifierIds: $enabledModifierIds)';
 }
