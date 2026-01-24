@@ -3,11 +3,16 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseService {
-  static final DatabaseService _databaseService = DatabaseService._internal();
-  factory DatabaseService() => _databaseService;
-  DatabaseService._internal();
+  Database? _database;
 
-  static Database? _database;
+  final String dbName;
+  final bool inMemory;
+  //make databases testable by making service configurable
+  DatabaseService({
+    this.dbName = 'basic_single_user_pos.db',
+    this.inMemory = false,
+  });
+
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
@@ -16,7 +21,7 @@ class DatabaseService {
 
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'basic_single_user_pos.db');
+    final path = inMemory ? ':memory:' : join(dbPath, dbName);
 
     return await openDatabase(
       path,
@@ -26,6 +31,20 @@ class DatabaseService {
     );
   }
 
+  Future<void> close() async {
+    await _database?.close();
+    _database = null;
+  }
+
+  Future<void> deleteDb() async {
+    if (!inMemory) {
+      final path = join(await getDatabasesPath(), dbName);
+      await deleteDatabase(path);
+    }
+    _database = null;
+  }
+
+  // ---------------- SCHEMA ----------------
   Future<void> _onCreate(Database db, int version) async {
     // --- independent tables ---
     // category table
@@ -114,41 +133,4 @@ class DatabaseService {
     )
   ''');
   }
-
-  //----CATEGORY CRUD ----
-  //create
-  Future<void> insertCategory(Category category) async {
-    final db = await _databaseService.database;
-    await db.insert(
-      'categories',
-      category.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  // read/get
-  Future<List<Category>> getCategories() async {
-    final db = await _databaseService.database;
-    final List<Map<String, dynamic>> maps = await db.query('categories');
-    return List.generate(maps.length, (i) => Category.fromMap(maps[i]));
-  }
-
-  //update
-  Future<void> updateCategory(Category category) async {
-    final db = await _databaseService.database;
-    await db.update(
-      'categories',
-      category.toMap(),
-      where: 'id = ?',
-      whereArgs: [category.id],
-    );
-  }
-
-  //delete
-  Future<void> deleteCategory(int id) async {
-    final db = await _databaseService.database;
-    db.delete('categories', where: 'id = ?', whereArgs: [id]);
-  }
-
-  //----MODIFIER CRUD ----
 }
