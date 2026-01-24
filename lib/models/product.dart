@@ -1,8 +1,9 @@
 import 'package:basic_single_user_pos_flutter/models/category.dart';
 import 'package:basic_single_user_pos_flutter/models/modifier.dart';
+import 'dart:convert';
 
 class Product {
-  final int id;
+  final int? id;
   final String name;
   final Category category;
   final double price;
@@ -11,7 +12,7 @@ class Product {
   final double? cost;
 
   Product({
-    required this.id,
+    this.id,
     required this.name,
     required this.category,
     required this.price,
@@ -20,29 +21,34 @@ class Product {
   });
 
   //convert to map
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toMap() => {
     'id': id,
     'name': name,
-    'category': category.toJson(),
+    'category': category.toMap(),
     'price': price,
     'enabledModifiers': enabledModifiers
-        .map((modifier) => modifier.toJson())
+        .map((modifier) => modifier.toMap())
         .toList(),
     'cost': cost,
   };
 
   // from map, parse to product
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
-    id: json['id'],
-    name: json['name'],
-    category: Category.fromJson(json['category']),
-    price: json['price'],
+  factory Product.fromMap(Map<String, dynamic> map) => Product(
+    id: map['id'],
+    name: map['name'],
+    category: Category.fromMap(map['category']),
+    price: map['price'],
     // list enabled modifiers, if null, then null
     enabledModifiers:
-        (json['enabledModifiers'] as List<dynamic>?)
-            ?.map((modifier) => Modifier.fromJson(modifier))
+        (map['enabledModifiers'] as List<dynamic>?)
+            ?.map((modifier) => Modifier.fromMap(modifier))
             .toList() ??
         [],
-    cost: json['cost'],
+    cost: map['cost'],
   );
+
+  String toJson() => json.encode(toMap());
+
+  factory Product.fromJson(String source) =>
+      Product.fromMap(jsonDecode(source));
 }

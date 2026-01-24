@@ -1,12 +1,19 @@
+import 'dart:convert';
+
 class ModifierOption {
-  final int id;
+  final int? id;
   final String name;
   final double price;
 
-  ModifierOption({required this.id, required this.name, required this.price});
+  ModifierOption({this.id, required this.name, required this.price});
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'price': price};
+  Map<String, dynamic> toMap() => {'id': id, 'name': name, 'price': price};
 
-  factory ModifierOption.fromJson(Map<String, dynamic> json) =>
-      ModifierOption(id: json['id'], name: json['name'], price: json['price']);
+  factory ModifierOption.fromMap(Map<String, dynamic> map) =>
+      ModifierOption(id: map['id'], name: map['name'], price: map['price']);
+
+  String toJson() => json.encode(toMap());
+
+  factory ModifierOption.fromJson(String json) =>
+      ModifierOption.fromMap(jsonDecode(json));
 }

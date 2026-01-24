@@ -1,14 +1,15 @@
 import 'package:basic_single_user_pos_flutter/models/modifier_option.dart';
 import 'package:basic_single_user_pos_flutter/models/product.dart';
+import 'dart:convert';
 
 class ReceiptItem {
-  final int id;
+  final int? id;
   final Product product;
   final List<ModifierOption> options;
   final int quantity;
 
   ReceiptItem({
-    required this.id,
+    this.id,
     required this.product,
     required this.options,
     required this.quantity,
@@ -19,20 +20,25 @@ class ReceiptItem {
     return (product.price + optionsTotal) * quantity;
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toMap() => {
     'id': id,
-    'product': product.toJson(),
-    'options': options.map((option) => option.toJson()).toList(),
+    'product': product.toMap(),
+    'options': options.map((option) => option.toMap()).toList(),
     'quantity': quantity,
     'total': total,
   };
 
-  factory ReceiptItem.fromJson(Map<String, dynamic> json) => ReceiptItem(
-    id: json['id'],
-    product: Product.fromJson(json['product']),
-    options: (json['options'] as List)
-        .map((option) => ModifierOption.fromJson(option))
+  factory ReceiptItem.fromMap(Map<String, dynamic> map) => ReceiptItem(
+    id: map['id'],
+    product: Product.fromMap(map['product']),
+    options: (map['options'] as List)
+        .map((option) => ModifierOption.fromMap(option))
         .toList(),
-    quantity: json['quantity'],
+    quantity: map['quantity'],
   );
+
+  String toJson() => json.encode(toMap());
+
+  factory ReceiptItem.fromJson(String source) =>
+      ReceiptItem.fromMap(jsonDecode(source));
 }
