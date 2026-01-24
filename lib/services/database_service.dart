@@ -1,4 +1,3 @@
-import 'package:basic_single_user_pos_flutter/models/category.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
