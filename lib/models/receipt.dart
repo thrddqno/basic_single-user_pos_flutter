@@ -14,14 +14,13 @@ class Receipt {
     required this.items,
     required this.paymentMethod,
     this.cashReceived,
-  });
+  }); // only date
 
   double get total => items.fold(0, (sum, item) => sum + item.total);
 
   Map<String, dynamic> toMap() => {
     'id': id,
     'date': date.toIso8601String(),
-    'items': items.map((item) => item.toMap()).toList(),
     'total': total,
     'paymentMethod': paymentMethod,
     'cashReceived': cashReceived,

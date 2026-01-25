@@ -82,17 +82,27 @@ void main() {
     );
 
     // --- Insert receipt ---
-    final receipt = Receipt(
-      date: DateTime.now(),
-      items: [item1, item2],
-      paymentMethod: 'Cash',
-      cashReceived: 500,
+    await receiptRepo.insertReceipt(
+      Receipt(
+        date: DateTime(2026, 01, 25),
+        items: [item1, item2],
+        paymentMethod: 'Cash',
+        cashReceived: 500,
+      ),
+    );
+    await receiptRepo.insertReceipt(
+      Receipt(
+        date: DateTime(2026, 01, 25),
+        items: [item2],
+        paymentMethod: 'Card',
+      ),
     );
 
-    final receiptId = await receiptRepo.insertReceipt(receipt);
-
     // --- Retrieve and assert ---
-    final fetched = await receiptRepo.getReceiptById(receiptId);
+    final fetched = await receiptRepo.getReceiptByDateRange(
+      DateTime(2026, 01, 25),
+      DateTime(2026, 01, 25),
+    );
     expect(fetched, isNotNull);
 
     print('Fetched Receipt: $fetched');

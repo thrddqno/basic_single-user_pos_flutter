@@ -37,6 +37,59 @@ class ReceiptRepository {
     return receiptId;
   }
 
+  Future<List<Receipt>> getAll() async {
+    final db = await _databaseService.database;
+
+    final receiptRow = await db.query(
+      'receipt',
+      columns: ['id'],
+      orderBy: 'date DESC',
+    );
+
+    final receipts = <Receipt>[];
+
+    for (final row in receiptRow) {
+      final receiptId = row['id'] as int;
+      final receipt = await getReceiptById(receiptId);
+      if (receipt != null) {
+        receipts.add(receipt);
+      }
+    }
+    return receipts;
+  }
+
+  //parse date
+  /*
+  String _parseDate(DateTime date) {
+    return '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+  }*/
+
+  Future<List<Receipt>> getReceiptByDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
+    final db = await _databaseService.database;
+    final rows = await db.query(
+      'receipts',
+      where: 'date BETWEEN ? AND ?',
+      whereArgs: [start.toIso8601String(), end.toIso8601String()],
+      orderBy: 'date ASC',
+    );
+
+    final receipts = <Receipt>[];
+
+    for (final row in rows) {
+      final receiptId = row['id'] as int;
+      final receipt = await getReceiptById(receiptId);
+      if (receipt != null) {
+        receipts.add(receipt);
+      }
+    }
+    return receipts;
+  }
+
   Future<Receipt?> getReceiptById(int id) async {
     final db = await _databaseService.database;
 
