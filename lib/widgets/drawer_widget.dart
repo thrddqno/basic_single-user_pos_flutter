@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DrawerWidget extends StatelessWidget {
-  const DrawerWidget({super.key});
+  final String currentRoute;
+
+  const DrawerWidget({required this.currentRoute, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,33 +41,14 @@ class DrawerWidget extends StatelessWidget {
           DrawerTile(
             icon: FontAwesomeIcons.basketShopping,
             label: 'Sale',
-            onTap: () => (),
+            routeName: '/sale',
+            currentRoute: currentRoute,
           ),
           DrawerTile(
             icon: FontAwesomeIcons.list,
             label: 'Items',
-            onTap: () => (),
-          ),
-          DrawerTile(
-            icon: FontAwesomeIcons.receipt,
-            label: 'Transactions',
-            onTap: () => (),
-          ),
-          DrawerTile(
-            icon: FontAwesomeIcons.chartSimple,
-            label: 'Analytics',
-            onTap: () => (),
-          ),
-          Divider(),
-          DrawerTile(
-            icon: FontAwesomeIcons.circleQuestion,
-            label: 'Help',
-            onTap: () => (),
-          ),
-          DrawerTile(
-            icon: FontAwesomeIcons.gear,
-            label: 'Settings',
-            onTap: () => (),
+            routeName: '/items',
+            currentRoute: currentRoute,
           ),
         ],
       ),
@@ -73,36 +56,51 @@ class DrawerWidget extends StatelessWidget {
   }
 }
 
+//fuckkk my lifee
 class DrawerTile extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onTap;
+  final String routeName;
+  final String currentRoute;
 
   const DrawerTile({
     required this.icon,
     required this.label,
-    required this.onTap,
+    required this.routeName,
+    required this.currentRoute,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool selected = routeName == currentRoute;
+
     return ListTile(
-      hoverColor: Colors.teal.shade100,
-      onTap: onTap,
+      tileColor: selected ? Colors.black12 : null,
+      hoverColor: Colors.teal.shade50,
+      onTap: () {
+        if (selected) {
+          Navigator.pop(context);
+        } else {
+          Navigator.pushReplacementNamed(context, routeName);
+        }
+      },
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
             padding: EdgeInsets.only(left: 8, right: 32),
-            child: Icon(icon, color: Colors.black45, size: 20),
+            child: Icon(
+              icon,
+              color: selected ? Colors.teal : Colors.black45,
+              size: 20,
+            ),
           ),
           Text(
             label,
             style: TextStyle(
-              color: Colors.black,
+              color: selected ? Colors.teal : Colors.black,
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: selected ? FontWeight.bold : FontWeight.w400,
             ),
           ),
         ],
