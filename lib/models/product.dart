@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Product {
-  final int? id;
+  int? id;
   final String name;
   final int categoryId;
   final double price;

@@ -16,7 +16,8 @@ class ProductProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    await productRepository.insert(product);
+    final id = await productRepository.insert(product); // return the new ID
+    product.id = id; // assign it
     _products.add(product);
     notifyListeners();
   }
