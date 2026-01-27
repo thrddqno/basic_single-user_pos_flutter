@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Modifier {
-  final int? id;
+  int? id;
   final String name;
 
   Modifier({this.id, required this.name});

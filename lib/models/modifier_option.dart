@@ -1,17 +1,19 @@
 import 'dart:convert';
 
 class ModifierOption {
-  final int? id;
-  final int modifierId;
+  int? id;
+  final int? modifierId;
   final String name;
-  final double price;
+  final double? price;
+  final String tempKey;
 
   ModifierOption({
     this.id,
-    required this.modifierId,
+    this.modifierId,
     required this.name,
-    required this.price,
-  });
+    this.price,
+    String? tempKey,
+  }) : tempKey = tempKey ?? DateTime.now().millisecondsSinceEpoch.toString();
 
   Map<String, dynamic> toMap() => {
     'id': id,
@@ -32,6 +34,7 @@ class ModifierOption {
   factory ModifierOption.fromJson(String json) =>
       ModifierOption.fromMap(jsonDecode(json));
 
+  @override
   String toString() =>
-      'ModiferOption(id: $id, modifierId: $modifierId, name: $name, price: $price)';
+      'ModifierOption(id: $id, modifierId: $modifierId, name: $name, price: $price)';
 }

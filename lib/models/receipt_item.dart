@@ -16,7 +16,7 @@ class ReceiptItem {
   });
 
   double get total {
-    double optionsTotal = options.fold(0, (sum, option) => sum + option.price);
+    double optionsTotal = options.fold(0, (sum, option) => sum + option.price!);
     return (product.price + optionsTotal) * quantity;
   }
 
