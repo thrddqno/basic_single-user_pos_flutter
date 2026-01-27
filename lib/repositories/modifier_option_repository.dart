@@ -82,4 +82,13 @@ class ModifierOptionRepository {
     final db = await _databaseService.database;
     await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<void> deleteByModifierId(int modifierId) async {
+    final db = await _databaseService.database;
+    await db.delete(
+      'modifier_options',
+      where: 'modifier_id = ?',
+      whereArgs: [modifierId],
+    );
+  }
 }

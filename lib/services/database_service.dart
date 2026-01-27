@@ -71,7 +71,7 @@ class DatabaseService {
       modifier_id INTEGER NOT NULL,
       name TEXT NOT NULL,
       price REAL NOT NULL,
-      FOREIGN KEY(modifier_id) REFERENCES modifiers(id)
+      FOREIGN KEY(modifier_id) REFERENCES modifiers(id) ON DELETE CASCADE
     )
   ''');
 
@@ -85,8 +85,17 @@ class DatabaseService {
       price REAL NOT NULL,
       cost REAL,
       color TEXT,
-      enabled_modifier_ids TEXT,
-      FOREIGN KEY(category_id) REFERENCES categories(id)
+      FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE SET DEFAULT
+    )
+  ''');
+
+    await db.execute('''
+    CREATE TABLE product_modifiers (
+      product_id INTEGER NOT NULL,
+      modifier_id INTEGER NOT NULL,
+      PRIMARY KEY (product_id, modifier_id),
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+      FOREIGN KEY (modifier_id) REFERENCES modifiers(id) ON DELETE CASCADE
     )
   ''');
 
