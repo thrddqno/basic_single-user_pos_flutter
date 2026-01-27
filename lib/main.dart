@@ -1,7 +1,9 @@
 import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
-import 'package:basic_single_user_pos_flutter/screens/add_products_page.dart';
+import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
+import 'package:basic_single_user_pos_flutter/screens/products_form.dart';
 import 'package:basic_single_user_pos_flutter/screens/items_page.dart';
 import 'package:basic_single_user_pos_flutter/repositories/product_repository.dart';
+import 'package:basic_single_user_pos_flutter/repositories/category_repository.dart';
 import 'package:basic_single_user_pos_flutter/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,10 +21,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productRepository = ProductRepository(databaseService);
+    final categoryRepository = CategoryRepository(databaseService);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (context) => ProductProvider(productRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CategoryProvider(categoryRepository),
         ),
       ],
       child: MaterialApp(
@@ -33,7 +39,7 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/sale',
         routes: {
-          '/addProduct': (context) => AddProductsPage(),
+          '/addProduct': (context) => ProductsFormPage(),
           '/sale': (context) => SalePage(),
           '/items': (context) => ItemsPage(),
         },

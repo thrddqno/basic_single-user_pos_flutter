@@ -2,6 +2,7 @@ import 'package:basic_single_user_pos_flutter/widgets/drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ItemsPage extends StatefulWidget {
@@ -13,6 +14,16 @@ class ItemsPage extends StatefulWidget {
 
 class _ItemsPageState extends State<ItemsPage> {
   String selectedTab = 'Items';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProductProvider>().loadProducts();
+      context.read<CategoryProvider>().loadCategories();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,68 +84,41 @@ class _ItemsPageState extends State<ItemsPage> {
                     padding: EdgeInsets.zero,
                     children: [
                       _menuButton('Items', FontAwesomeIcons.list),
-                      _menuButton('Categories', FontAwesomeIcons.borderAll),
-                      _menuButton('Modifiers', FontAwesomeIcons.pen),
+                      _menuButton('Categories', FontAwesomeIcons.layerGroup),
+                      _menuButton('Modifiers', FontAwesomeIcons.solidClone),
                     ],
                   ),
                 ),
 
                 //right page
+                //add product
                 Expanded(
-                  child: Stack(
-                    children: [
-                      // List of products
-                      Consumer<ProductProvider>(
-                        builder: (context, productProvider, child) {
-                          final products = productProvider.products;
-
-                          if (products.isEmpty) {
-                            return Center(
-                              child: Text(
-                                "No items found. Add an item!",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black45,
-                                ),
-                              ),
-                            );
-                          }
-
-                          return ListView.builder(
-                            padding: EdgeInsets.all(16),
-                            itemCount: products.length,
-                            itemBuilder: (context, index) {
-                              final product = products[index];
-                              return Card(
-                                margin: EdgeInsets.symmetric(vertical: 8),
-                                child: ListTile(
-                                  title: Text(product.name),
-                                  subtitle: Text(
-                                    '₱${product.price.toStringAsFixed(2)}',
-                                  ),
-                                  trailing: Icon(Icons.edit),
-                                  onTap: () {},
-                                ),
-                              );
-                            },
-                          );
-                        },
+                  child: ClipRRect(
+                    child: Container(
+                      margin: EdgeInsets.only(left: 1),
+                      clipBehavior: Clip.none,
+                      color: Colors.white,
+                      child: Stack(
+                        children: [
+                          ListView(children: [
+                                
+                              ],
+                            ),
+                          Positioned(
+                            right: 24,
+                            bottom: 24,
+                            child: FloatingActionButton(
+                              shape: CircleBorder(),
+                              backgroundColor: Colors.teal,
+                              elevation: 1,
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/addProduct'),
+                              child: Icon(Icons.add, color: Colors.white),
+                            ),
+                          ),
+                        ],
                       ),
-
-                      // FloatingActionButton
-                      Positioned(
-                        bottom: 16,
-                        right: 16,
-                        child: FloatingActionButton(
-                          elevation: 1,
-                          backgroundColor: Colors.teal,
-                          shape: CircleBorder(),
-                          onPressed: () =>
-                              Navigator.pushNamed(context, '/addProduct'),
-                          child: Icon(Icons.add, color: Colors.white),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
