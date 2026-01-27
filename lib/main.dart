@@ -1,6 +1,11 @@
+import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
-import 'package:basic_single_user_pos_flutter/screens/products_form.dart';
+import 'package:basic_single_user_pos_flutter/repositories/modifier_option_repository.dart';
+import 'package:basic_single_user_pos_flutter/repositories/modifier_repository.dart';
+import 'package:basic_single_user_pos_flutter/screens/forms/category_form.dart';
+import 'package:basic_single_user_pos_flutter/screens/forms/modifer_form.dart';
+import 'package:basic_single_user_pos_flutter/screens/forms/products_form.dart';
 import 'package:basic_single_user_pos_flutter/screens/items_page.dart';
 import 'package:basic_single_user_pos_flutter/repositories/product_repository.dart';
 import 'package:basic_single_user_pos_flutter/repositories/category_repository.dart';
@@ -22,13 +27,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final productRepository = ProductRepository(databaseService);
     final categoryRepository = CategoryRepository(databaseService);
+    final modifierRepository = ModifierRepository(databaseService);
+    final modifierOptionRepository = ModifierOptionRepository(databaseService);
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => ProductProvider(productRepository),
+          create: (context) =>
+              ProductProvider(productRepository)..loadProducts(),
         ),
         ChangeNotifierProvider(
-          create: (context) => CategoryProvider(categoryRepository),
+          create: (context) =>
+              CategoryProvider(categoryRepository)..loadCategories(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              ModifierProvider(modifierRepository, modifierOptionRepository)
+                ..loadAll(),
         ),
       ],
       child: MaterialApp(
@@ -39,7 +54,9 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/sale',
         routes: {
+          '/addCategory': (context) => CategoryFormPage(),
           '/addProduct': (context) => ProductsFormPage(),
+          '/addModifier': (context) => ModifierFormPage(),
           '/sale': (context) => SalePage(),
           '/items': (context) => ItemsPage(),
         },
