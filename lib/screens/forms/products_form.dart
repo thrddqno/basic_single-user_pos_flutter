@@ -1,4 +1,9 @@
+import 'package:basic_single_user_pos_flutter/helpers/color_helper.dart';
+import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
+import 'package:basic_single_user_pos_flutter/repositories/product_repository.dart';
+import 'package:basic_single_user_pos_flutter/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -13,8 +18,31 @@ class ProductsFormPage extends StatefulWidget {
 }
 
 final _formKey = GlobalKey<FormBuilderState>();
+final databaseService = DatabaseService();
+final productRepository = ProductRepository(databaseService);
 
 class _ProductsFormPageState extends State<ProductsFormPage> {
+  late Map<String, dynamic> initialValues;
+  Product? productArg;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Grab the product from route arguments if widget.product is null
+    productArg = ModalRoute.of(context)?.settings.arguments as Product?;
+
+    initialValues = {
+      'productName': productArg?.name ?? '',
+      'category': productArg?.categoryId ?? 1,
+      'cost': productArg?.cost?.toString() ?? '',
+      'price': productArg?.price?.toString() ?? '',
+      'color': productArg != null
+          ? ColorHelper.fromHex(productArg!.color)
+          : Colors.grey,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,26 +58,117 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Builder(
-                      builder: (context) => IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: Icon(
-                          FontAwesomeIcons.angleLeft,
-                          color: Colors.white,
+                    Row(
+                      children: [
+                        Builder(
+                          builder: (context) => IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(
+                              FontAwesomeIcons.angleLeft,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
+                        SizedBox(width: 10),
+                        Text(
+                          productArg == null ? "Add Product" : "Edit Product",
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 10),
-                    Text(
-                      "Add Product",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    Row(
+                      children: [
+                        if (productArg != null && productArg!.id != null)
+                          IconButton(
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: Text("Delete Product"),
+                                  content: Text(
+                                    "Are you sure you want to delete this product?",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(ctx, false),
+                                      child: Text("Cancel"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx, true),
+                                      child: Text(
+                                        "Delete",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true) {
+                                await context
+                                    .read<ProductProvider>()
+                                    .deleteProduct(productArg!.id!);
+                                Navigator.pop(
+                                  context,
+                                ); // close form after deletion
+                              }
+                            },
+                            icon: Icon(Icons.delete, color: Colors.red),
+                          ),
+                        TextButton(
+                          onPressed: () {
+                            if (_formKey.currentState?.saveAndValidate() ??
+                                false) {
+                              final formData = _formKey.currentState!.value;
+
+                              final product = Product(
+                                id: productArg?.id, // keep id if editing
+                                name: formData['productName'],
+                                categoryId: formData['category'],
+                                cost:
+                                    double.tryParse(
+                                      formData['cost'].toString(),
+                                    ) ??
+                                    0,
+                                price:
+                                    double.tryParse(
+                                      formData['price'].toString(),
+                                    ) ??
+                                    0,
+                                color: ColorHelper.toHex(formData['color']),
+                              );
+
+                              final productProvider = context
+                                  .read<ProductProvider>();
+
+                              if (productArg == null) {
+                                productProvider.addProduct(product);
+                              } else {
+                                productProvider.updateProduct(product);
+                              }
+
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text(
+                            "SAVE",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -78,6 +197,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                       children: [
                         FormBuilderTextField(
                           name: 'productName',
+                          initialValue: initialValues['productName'],
                           decoration: const InputDecoration(labelText: 'Name'),
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
@@ -86,7 +206,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                         SizedBox(height: 20),
                         FormBuilderDropdown<int>(
                           name: 'category',
-                          initialValue: 1,
+                          initialValue: initialValues['category'],
                           decoration: const InputDecoration(
                             labelText: 'Category',
                           ),
@@ -126,20 +246,18 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                             Expanded(
                               child: FormBuilderTextField(
                                 name: 'cost',
+                                initialValue: initialValues['cost'],
                                 decoration: const InputDecoration(
                                   labelText: 'Cost',
                                   prefixText: '₱ ',
                                 ),
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.numeric(),
-                                  FormBuilderValidators.min(0),
-                                ]),
                               ),
                             ),
                             SizedBox(width: 50),
                             Expanded(
                               child: FormBuilderTextField(
                                 name: 'price',
+                                initialValue: initialValues['price'],
                                 decoration: const InputDecoration(
                                   labelText: 'Price',
                                   prefixText: '₱ ',
@@ -156,7 +274,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                         SizedBox(height: 40),
                         FormBuilderField<Color>(
                           name: 'color',
-                          initialValue: Colors.grey, // default selected color
+                          initialValue: initialValues['color'],
                           builder: (field) {
                             final colors = [
                               Colors.grey,
@@ -184,7 +302,9 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: colors.map((color) {
-                                    final isSelected = field.value == color;
+                                    final isSelected =
+                                        (field.value?.value ?? 0) ==
+                                        color.value;
                                     return GestureDetector(
                                       onTap: () => field.didChange(color),
                                       child: Container(

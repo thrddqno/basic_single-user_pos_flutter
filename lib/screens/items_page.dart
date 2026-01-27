@@ -1,3 +1,5 @@
+import 'package:basic_single_user_pos_flutter/helpers/color_helper.dart';
+import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/widgets/drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -91,7 +93,6 @@ class _ItemsPageState extends State<ItemsPage> {
                 ),
 
                 //right page
-                //add product
                 Expanded(
                   child: ClipRRect(
                     child: Container(
@@ -100,10 +101,21 @@ class _ItemsPageState extends State<ItemsPage> {
                       color: Colors.white,
                       child: Stack(
                         children: [
-                          ListView(children: [
-                                
-                              ],
-                            ),
+                          ListView(
+                            children: [
+                              ...context.watch<ProductProvider>().products.map((
+                                product,
+                              ) {
+                                final category = context
+                                    .read<CategoryProvider>()
+                                    .categories
+                                    .firstWhere(
+                                      (c) => c.id == product.categoryId,
+                                    );
+                                return _productTile(product, category.name);
+                              }),
+                            ],
+                          ),
                           Positioned(
                             right: 24,
                             bottom: 24,
@@ -121,6 +133,9 @@ class _ItemsPageState extends State<ItemsPage> {
                     ),
                   ),
                 ),
+                // case modifiers
+
+                // case categories
               ],
             ),
           ),
@@ -165,6 +180,46 @@ class _ItemsPageState extends State<ItemsPage> {
           }
         },
       ),
+    );
+  }
+
+  Widget _productTile(Product product, String categoryName) {
+    return Column(
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: ColorHelper.fromHex(product.color),
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(color: Colors.black12, width: 1),
+            ),
+          ),
+          title: Text(
+            product.name,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(
+            categoryName,
+            style: TextStyle(fontSize: 14, color: Colors.black54),
+          ),
+          trailing: Text(
+            '₱ ${product.price.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.green.shade700,
+            ),
+          ),
+          onTap: () {
+            debugPrint(product.toString());
+            Navigator.pushNamed(context, '/addProduct', arguments: product);
+          },
+        ),
+        Divider(color: Colors.grey.shade300, thickness: 1),
+      ],
     );
   }
 }
