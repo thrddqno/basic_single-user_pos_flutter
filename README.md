@@ -1,60 +1,125 @@
-# Basic POS
+<a id="readme-top"></a>
 
-## Overview
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![Unlicense License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-Basic Single User POS is an offline, single-device, single-user point-of-sale (POS) system designed for small businesses.
-The primary goal is to enable daily sales operations without requiring an internet connection, while still providing reliable daily reporting and basic data analytics to support standard operating procedures (SOPs).
 
-This project is intended for real-world use in a small family business environment, prioritizing reliability, simplicity, and clarity over advanced features.
+<br />
+<div align="center">
 
-## Project Goals
+  <h1 align="center">basic_single-user_pos_flutter</h1>
 
-- Enable daily sales transactions on a single device
-- Operate fully offline
-- Provide clear daily sales reporting
-- Store data locally and safely
-- Keep the system simple and easy to use for non-technical users
+  <p align="center">
+    A single-device, single-user point-of-sale (POS) system with offline capabilities and basic data analytics, designed for small businesses to manage daily sales and reporting without relying on an internet connection.
+    <br />
+    <br />
+    <a href="https://github.com/thrddqno/basic_single-user_pos_flutter/releases">Get Latest Release</a>
+    |
+    <a href="https://github.com/thrddqno/basic_single-user_pos_flutter/issues/new?labels=bug&template=bug-report---.md">Report Issue</a>
+    |
+    <a href="https://github.com/thrddqno/basic_single-user_pos_flutter/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+  </p>
+</div>
 
-## How it's made:
 
-Techstack: Flutter, Dart, SQLite through SQLFlite
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#key-goals">Key Goals</a></li>
+        <li><a href="#techstack">Techstack</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#usage">Usage</a></li>
+      </ul>
+    </li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
 
-## Features
+## About The Project
 
-The MVP of the project includes the core features:
+**basic_single-user_pos_flutter** is a single-device, single-user point-of-sale (POS) system built with Flutter. It works completely offline, stores data locally using SQLite, and provides basic analytics to help small businesses track daily sales.
 
-### Product Management
+**This project was inspired by a real need:** my parents run a small ice cream store, and we faced trust and record-keeping issues with daily ledgers and sales reports, and listing them manually on paper was a nuisance to our crew. Existing POS solutions were mostly cloud-based, which didn’t suit our small-scale offline needs. I couldn’t find an offline-first POS with built-in analytics, so I challenged myself to build one using my skills.
 
-- Add, edit and customize products
-- Manage product pricing and basic details
+### Key Goals:
+- Enable daily sales on a single device without internet
+- Manage products, modifiers, and pricing
+- Record transactions and generate basic sales reports
+- Keep data secure and local
+- Simple and clean UI for non-technical users
 
-### Point-of-Sale Interface
+### Techstack:
+[![Flutter][flutter-shield]][flutter-url]
+[![Dart][dart-shield]][dart-url]
+[![SQFlite][sqflite-shield]][sqflite-url]
 
-- Simple POS Screen for creating sales
-- Add/remove items from a cart
-- Calculate totals and sale logic
+## Getting Started
+### Prerequisites
+- Flutter SDK Installed
+- Compatible device or emulator (Android Studio)
 
-### Sales & Transactions
+### Installation
+**1. Clone the repo**
+```bash
+git clone https://github.com/thrddqno/basic_single-user_pos_flutter.git
+cd basic_single-user_pos_flutter
+```
+**2. Install Dependencies**
+```bash
+flutter pub get
+```
+**3. Run on a device/emulator**
+```bash
+flutter run
+```
 
-- Record completed sales
-- Store transaction data locally through databases and repositories
+### Usage
+1. Launch the app
+2. Add products, categories, and configure modifiers
+3. Process sales and add items to the cart
+4. Access analytics to view daily sales summaries
 
-### Basic Data Analytics
+## Roadmap
+*For current goals and alignment:*
+- [x] **Backend functionality**
+- [x] **Product & Modifier management**
+- [ ] Sale Transactions & Checkout
+- [ ] Receipt Management
+- [ ] DateRange Analytics
 
-- View sale summaries accurately by general, product, and categories within a selected date range
+## License
 
-## Nice-to-have Features
+Distributed under the project_license. See `LICENSE.txt` for more information.
 
-These feature are not require for MVP completion but may be added later:
-
-#### CSV Export
-
-- Export daily or ranged sales data for record keeping
-
-#### Online Sync
-
-- Although this POS is operational offline, sync local data to a server when an internet connection is available
-
-#### Inventory Management
-
-- Track inventory management per recipe per item
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[forks-shield]: https://img.shields.io/github/forks/thrddqno/basic_single-user_pos_flutter.svg?style=for-the-badge
+[forks-url]: https://github.com/thrddqno/basic_single-user_pos_flutter/network/members
+[stars-shield]: https://img.shields.io/github/stars/thrddqno/basic_single-user_pos_flutter.svg?style=for-the-badge
+[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
+[issues-shield]: https://img.shields.io/github/issues/thrddqno/basic_single-user_pos_flutter.svg?style=for-the-badge
+[issues-url]: https://github.com/thrddqno/basic_single-user_pos_flutter/issues
+[license-shield]: https://img.shields.io/github/license/thrddqno/basic_single-user_pos_flutter.svg?style=for-the-badge
+[license-url]: https://github.com/thrddqno/basic_single-user_pos_flutter/blob/main/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/thrddqno
+[flutter-shield]: https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white
+[flutter-url]: https://flutter.dev/
+[dart-shield]: https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white
+[dart-url]: https://dart.dev/
+[sqflite-shield]: https://img.shields.io/badge/sqflite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white
+[sqflite-url]: https://pub.dev/packages/sqflite
