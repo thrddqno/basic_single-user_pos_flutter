@@ -110,7 +110,7 @@ Distributed under the project_license. See `LICENSE.txt` for more information.
 [forks-shield]: https://img.shields.io/github/forks/thrddqno/basic_single-user_pos_flutter.svg?style=for-the-badge
 [forks-url]: https://github.com/thrddqno/basic_single-user_pos_flutter/network/members
 [stars-shield]: https://img.shields.io/github/stars/thrddqno/basic_single-user_pos_flutter.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
+[stars-url]: https://github.com/thrddqno/basic_single-user_pos_flutter//stargazers
 [issues-shield]: https://img.shields.io/github/issues/thrddqno/basic_single-user_pos_flutter.svg?style=for-the-badge
 [issues-url]: https://github.com/thrddqno/basic_single-user_pos_flutter/issues
 [license-shield]: https://img.shields.io/github/license/thrddqno/basic_single-user_pos_flutter.svg?style=for-the-badge
