@@ -15,20 +15,35 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addProduct(Product product) async {
-    final id = await productRepository.insert(product); // return the new ID
-    product.id = id; // assign it
+  Future<int> addProduct(Product product) async {
+    final id = await productRepository.insert(product); // returns new ID
+    product.id = id;
     _products.add(product);
+
+    // Save product_modifiers
+    await updateProductModifiers(id, product.enabledModifierIds);
     notifyListeners();
+
+    return id;
   }
 
   Future<void> updateProduct(Product product) async {
     await productRepository.update(product);
+    await updateProductModifiers(product.id!, product.enabledModifierIds);
+
     final index = _products.indexWhere((p) => p.id == product.id);
     if (index != -1) {
       _products[index] = product;
       notifyListeners();
     }
+  }
+
+  Future<void> updateProductModifiers(
+    int productId,
+    List<int> modifierIds,
+  ) async {
+    // Make sure your ProductRepository has this method
+    await productRepository.updateProductModifiers(productId, modifierIds);
   }
 
   Future<void> deleteProduct(int id) async {

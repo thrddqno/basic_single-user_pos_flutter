@@ -33,6 +33,7 @@ class CategoryProvider with ChangeNotifier {
 
   Future<void> deleteCategory(int id) async {
     await categoryRepository.delete(id);
+
     _categories.removeWhere((c) => c.id == id);
     notifyListeners();
   }
