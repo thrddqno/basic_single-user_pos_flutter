@@ -97,8 +97,8 @@ flutter run
 *For current goals and alignment:*
 - [x] **Backend functionality**
 - [x] **Product & Modifier management**
-- [ ] Sale Transactions & Checkout
-- [ ] Receipt Management
+- [x] Sale Transactions & Checkout
+- [x] Receipt Management
 - [ ] DateRange Analytics
 
 ## License
