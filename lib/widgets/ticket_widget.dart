@@ -85,6 +85,7 @@ class TicketWidget extends StatelessWidget {
                         },
                       ),
                     ),
+                    Divider(),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,

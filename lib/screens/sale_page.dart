@@ -246,7 +246,7 @@ class _AllCategoryButton extends StatelessWidget {
         ),
         child: Icon(
           Icons.grid_view,
-          color: isSelected ? Colors.teal : Colors.black54,
+          color: isSelected ? Colors.teal : Colors.grey,
         ),
       ),
     );
@@ -275,8 +275,8 @@ class _CategoryRow extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Container(
-        width: 140,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
@@ -285,17 +285,14 @@ class _CategoryRow extends StatelessWidget {
             ),
           ),
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                name,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-          ],
+        child: Text(
+          name.toUpperCase(),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          style: TextStyle(
+            color: isSelected ? Colors.teal : Colors.grey,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
