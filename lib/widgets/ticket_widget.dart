@@ -85,7 +85,7 @@ class TicketWidget extends StatelessWidget {
                             background: Container(
                               alignment: Alignment.centerRight,
                               padding: const EdgeInsets.only(right: 20),
-                              color: Colors.redAccent,
+                              color: Colors.red,
                               child: const Icon(
                                 Icons.delete,
                                 color: Colors.white,
@@ -96,7 +96,9 @@ class TicketWidget extends StatelessWidget {
                               context.read<CartProvider>().removeItem(index);
                             },
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                              ),
                               child: TicketItem(
                                 index: index,
                                 productName: item.product.name,
