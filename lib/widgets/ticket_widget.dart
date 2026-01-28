@@ -6,7 +6,9 @@ import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
 import 'package:collection/collection.dart';
 
 class TicketWidget extends StatelessWidget {
-  const TicketWidget({super.key});
+  final bool readOnly;
+
+  const TicketWidget({super.key, this.readOnly = false});
 
   static const double headerHeight = 100;
 
@@ -75,39 +77,56 @@ class TicketWidget extends StatelessWidget {
                               (item.product.price + modifierTotal) *
                               item.quantity;
 
-                          return Dismissible(
-                            key: ValueKey('${item.product.id}-$index'),
-                            direction:
-                                DismissDirection.endToStart, // swipe left
-                            dismissThresholds: {
-                              DismissDirection.endToStart: 0.1,
-                            },
-                            background: Container(
-                              alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.only(right: 20),
-                              color: Colors.red,
-                              child: const Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                                size: 28,
-                              ),
-                            ),
-                            onDismissed: (_) {
-                              context.read<CartProvider>().removeItem(index);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8.0,
-                              ),
-                              child: TicketItem(
-                                index: index,
-                                productName: item.product.name,
-                                qty: item.quantity,
-                                itemTotal: itemTotal,
-                                modifierOptions: modifierNames,
-                              ),
-                            ),
-                          );
+                          return readOnly
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                  ),
+                                  child: TicketItem(
+                                    index: index,
+                                    productName: item.product.name,
+                                    qty: item.quantity,
+                                    itemTotal: itemTotal,
+                                    modifierOptions: modifierNames,
+                                    readOnly: true,
+                                  ),
+                                )
+                              : Dismissible(
+                                  key: ValueKey('${item.product.id}-$index'),
+                                  direction: DismissDirection.endToStart,
+                                  dismissThresholds: {
+                                    DismissDirection.endToStart: 0.3,
+                                  },
+                                  resizeDuration: Duration(milliseconds: 100),
+                                  background: Container(
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.only(right: 20),
+                                    color: Colors.red,
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  onDismissed: (_) {
+                                    context.read<CartProvider>().removeItem(
+                                      index,
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: TicketItem(
+                                      index: index,
+                                      productName: item.product.name,
+                                      qty: item.quantity,
+                                      itemTotal: itemTotal,
+                                      modifierOptions: modifierNames,
+                                      readOnly: false,
+                                    ),
+                                  ),
+                                );
                         },
                       ),
                     ),
@@ -162,17 +181,18 @@ class TicketWidget extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-                    PopupMenuButton<String>(
-                      onSelected: (value) => value == 'clear'
-                          ? context.read<CartProvider>().clear()
-                          : '',
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'clear',
-                          child: Text('Clear Cart'),
-                        ),
-                      ],
-                    ),
+                    if (!readOnly)
+                      PopupMenuButton<String>(
+                        onSelected: (value) => value == 'clear'
+                            ? context.read<CartProvider>().clear()
+                            : '',
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'clear',
+                            child: Text('Clear Cart'),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -190,6 +210,7 @@ class TicketItem extends StatelessWidget {
   final int qty;
   final double itemTotal;
   final String? modifierOptions;
+  final bool readOnly;
 
   const TicketItem({
     required this.index,
@@ -197,28 +218,31 @@ class TicketItem extends StatelessWidget {
     required this.qty,
     required this.itemTotal,
     this.modifierOptions,
+    this.readOnly = false,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        final cartProvider = context.read<CartProvider>();
-        final modifierProvider = context.read<ModifierProvider>();
-        final item = cartProvider.items[index];
+      onTap: readOnly
+          ? null
+          : () {
+              final cartProvider = context.read<CartProvider>();
+              final modifierProvider = context.read<ModifierProvider>();
+              final item = cartProvider.items[index];
 
-        showDialog(
-          context: context,
-          builder: (_) => ModifierDialog(
-            product: item.product,
-            modifierProvider: modifierProvider,
-            cartProvider: cartProvider,
-            editingItem: item,
-            editingItemIndex: index,
-          ),
-        );
-      },
+              showDialog(
+                context: context,
+                builder: (_) => ModifierDialog(
+                  product: item.product,
+                  modifierProvider: modifierProvider,
+                  cartProvider: cartProvider,
+                  editingItem: item,
+                  editingItemIndex: index,
+                ),
+              );
+            },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(

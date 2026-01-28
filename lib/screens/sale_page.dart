@@ -196,21 +196,37 @@ class _SalePageState extends State<SalePage> {
                     Expanded(child: TicketWidget()),
                     Padding(
                       padding: EdgeInsets.all(16),
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          elevation: 2,
-                          backgroundColor: Colors.teal,
-                          minimumSize: Size(double.infinity, 70),
-                        ),
-                        child: Text(
-                          'Charge',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                      child: Consumer<CartProvider>(
+                        builder: (context, cartProvider, _) {
+                          final isCartEmpty = cartProvider.items.isEmpty;
+
+                          return ElevatedButton(
+                            onPressed: isCartEmpty
+                                ? null // disables button if cart is empty
+                                : () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/checkOutCart',
+                                    );
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+                              backgroundColor: Colors.teal,
+                              minimumSize: Size(double.infinity, 70),
+                              disabledBackgroundColor: Colors.teal.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                            child: Text(
+                              'Charge',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
