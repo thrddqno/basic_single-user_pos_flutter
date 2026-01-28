@@ -10,7 +10,7 @@ class ReceiptProvider with ChangeNotifier {
 
   ReceiptProvider(this._receiptRepository);
 
-  Future<void> fetchReceipts() async {
+  Future<void> loadAll() async {
     _receipts = await _receiptRepository.getAll();
     notifyListeners();
   }
@@ -18,13 +18,14 @@ class ReceiptProvider with ChangeNotifier {
   Receipt? get latestReceipt => _receipts.isNotEmpty ? _receipts.last : null;
 
   Future<void> createReceipt(Receipt receipt) async {
-    await _receiptRepository.insertReceipt(receipt);
+    var id = await _receiptRepository.insertReceipt(receipt);
+    receipt.id = id;
     _receipts.add(receipt);
     notifyListeners();
   }
 
   Future<void> deleteReceipt(int id) async {
     await _receiptRepository.deleteReceipt(id);
-    await fetchReceipts();
+    await loadAll();
   }
 }

@@ -50,13 +50,18 @@ class DrawerWidget extends StatelessWidget {
             routeName: '/items',
             currentRoute: currentRoute,
           ),
+          DrawerTile(
+            icon: FontAwesomeIcons.receipt,
+            label: 'Transactions',
+            routeName: '/receiptsPage',
+            currentRoute: currentRoute,
+          ),
         ],
       ),
     );
   }
 }
 
-//fuckkk my lifee
 class DrawerTile extends StatelessWidget {
   final IconData icon;
   final String label;

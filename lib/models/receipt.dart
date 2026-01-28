@@ -2,7 +2,7 @@ import 'package:basic_single_user_pos_flutter/models/receipt_item.dart';
 import 'dart:convert';
 
 class Receipt {
-  final int? id;
+  int? id;
   final DateTime date;
   final List<ReceiptItem> items;
   final String paymentMethod;
@@ -14,7 +14,7 @@ class Receipt {
     required this.items,
     required this.paymentMethod,
     this.cashReceived,
-  }); // only date
+  });
 
   double get total => items.fold(0, (sum, item) => sum + item.total);
 

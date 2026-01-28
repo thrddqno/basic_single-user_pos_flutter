@@ -14,6 +14,7 @@ import 'package:basic_single_user_pos_flutter/screens/items_page.dart';
 import 'package:basic_single_user_pos_flutter/repositories/product_repository.dart';
 import 'package:basic_single_user_pos_flutter/repositories/category_repository.dart';
 import 'package:basic_single_user_pos_flutter/screens/post_checkout_page.dart';
+import 'package:basic_single_user_pos_flutter/screens/receipts_page.dart';
 import 'package:basic_single_user_pos_flutter/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
               CartProvider(modifierProvider: context.read<ModifierProvider>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => ReceiptProvider(receiptRepository),
+          create: (context) => ReceiptProvider(receiptRepository)..loadAll(),
         ),
       ],
       child: MaterialApp(
@@ -75,6 +76,7 @@ class MyApp extends StatelessWidget {
           '/addModifier': (context) => ModifierFormPage(),
           '/sale': (context) => SalePage(),
           '/items': (context) => ItemsPage(),
+          '/receiptsPage': (context) => ReceiptsPage(),
           '/checkOutCart': (context) => CheckOutCart(),
           '/postCheckOut': (context) => PostCheckoutPage(),
         },
