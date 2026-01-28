@@ -135,7 +135,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            receipt.total.toStringAsFixed(2),
+                                            '₱${receipt.total.toStringAsFixed(2)}',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18,
