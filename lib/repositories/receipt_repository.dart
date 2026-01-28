@@ -41,7 +41,7 @@ class ReceiptRepository {
     final db = await _databaseService.database;
 
     final receiptRow = await db.query(
-      'receipt',
+      'receipts',
       columns: ['id'],
       orderBy: 'date DESC',
     );

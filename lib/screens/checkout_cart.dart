@@ -1,5 +1,10 @@
 import 'package:basic_single_user_pos_flutter/helpers/bills_helper.dart';
+import 'package:basic_single_user_pos_flutter/models/modifier_option.dart';
+import 'package:basic_single_user_pos_flutter/models/receipt.dart';
+import 'package:basic_single_user_pos_flutter/models/receipt_item.dart';
 import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/receipt_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:basic_single_user_pos_flutter/widgets/ticket_widget.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -14,6 +19,71 @@ class CheckOutCart extends StatefulWidget {
 }
 
 class _CheckOutCartState extends State<CheckOutCart> {
+  late TextEditingController _cashController;
+
+  @override
+  void initState() {
+    super.initState();
+    final total = context.read<CartProvider>().total;
+    _cashController = TextEditingController(text: total.toStringAsFixed(2));
+  }
+
+  @override
+  void dispose() {
+    _cashController.dispose();
+    super.dispose();
+  }
+
+  void _checkout({required String method}) async {
+    final cartProvider = context.read<CartProvider>();
+    final modifierProvider = context.read<ModifierProvider>();
+    final receiptProvider = context.read<ReceiptProvider>();
+
+    double? cashReceived;
+    if (method == 'cash') {
+      cashReceived = double.tryParse(_cashController.text);
+      if (cashReceived == null || cashReceived < cartProvider.total) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Cash received must cover total amount!')),
+        );
+        return;
+      }
+    }
+
+    final receiptItems = cartProvider.items.map((cartItem) {
+      final options = <ModifierOption>[];
+
+      cartItem.selectedModifiers.forEach((modifierId, optionIds) {
+        final availableOptions = modifierProvider.optionsForModifier(
+          modifierId,
+        );
+
+        for (var optionId in optionIds) {
+          final option = availableOptions.firstWhere((o) => o.id == optionId);
+          options.add(option);
+        }
+      });
+
+      return ReceiptItem(
+        product: cartItem.product,
+        options: options,
+        quantity: cartItem.quantity,
+      );
+    }).toList();
+
+    final receipt = Receipt(
+      date: DateTime.now(),
+      items: receiptItems,
+      paymentMethod: method,
+      cashReceived: cashReceived,
+    );
+
+    await receiptProvider.createReceipt(receipt);
+
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/postCheckOut');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,10 +170,8 @@ class _CheckOutCartState extends State<CheckOutCart> {
                             Expanded(
                               child: FormBuilderTextField(
                                 name: 'cashReceived',
-                                initialValue: context
-                                    .read<CartProvider>()
-                                    .total
-                                    .toString(),
+                                controller: _cashController,
+                                keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   labelText: 'Cash Received',
 
@@ -122,7 +190,7 @@ class _CheckOutCartState extends State<CheckOutCart> {
                                 elevation: 0,
                                 backgroundColor: Colors.teal,
                               ),
-                              onPressed: () {},
+                              onPressed: () => _checkout(method: 'cash'),
                               child: Text(
                                 'CHARGE',
                                 style: TextStyle(
@@ -154,7 +222,10 @@ class _CheckOutCartState extends State<CheckOutCart> {
                                       elevation: 0,
                                       backgroundColor: Colors.grey.shade100,
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      _cashController.text = value.toString();
+                                      _checkout(method: 'cash');
+                                    },
                                     child: Text(
                                       value.toString(),
                                       style: TextStyle(
@@ -178,7 +249,7 @@ class _CheckOutCartState extends State<CheckOutCart> {
                             elevation: 0,
                             backgroundColor: Colors.grey.shade100,
                           ),
-                          onPressed: () {},
+                          onPressed: () => _checkout(method: 'card'),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 10,

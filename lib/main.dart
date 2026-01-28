@@ -2,8 +2,10 @@ import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/receipt_provider.dart';
 import 'package:basic_single_user_pos_flutter/repositories/modifier_option_repository.dart';
 import 'package:basic_single_user_pos_flutter/repositories/modifier_repository.dart';
+import 'package:basic_single_user_pos_flutter/repositories/receipt_repository.dart';
 import 'package:basic_single_user_pos_flutter/screens/checkout_cart.dart';
 import 'package:basic_single_user_pos_flutter/screens/forms/category_form.dart';
 import 'package:basic_single_user_pos_flutter/screens/forms/modifer_form.dart';
@@ -11,6 +13,7 @@ import 'package:basic_single_user_pos_flutter/screens/forms/products_form.dart';
 import 'package:basic_single_user_pos_flutter/screens/items_page.dart';
 import 'package:basic_single_user_pos_flutter/repositories/product_repository.dart';
 import 'package:basic_single_user_pos_flutter/repositories/category_repository.dart';
+import 'package:basic_single_user_pos_flutter/screens/post_checkout_page.dart';
 import 'package:basic_single_user_pos_flutter/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +34,10 @@ class MyApp extends StatelessWidget {
     final categoryRepository = CategoryRepository(databaseService);
     final modifierRepository = ModifierRepository(databaseService);
     final modifierOptionRepository = ModifierOptionRepository(databaseService);
+    final receiptRepository = ReceiptRepository(
+      databaseService,
+      productRepository,
+    );
 
     return MultiProvider(
       providers: [
@@ -51,6 +58,9 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               CartProvider(modifierProvider: context.read<ModifierProvider>()),
         ),
+        ChangeNotifierProvider(
+          create: (context) => ReceiptProvider(receiptRepository),
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -66,6 +76,7 @@ class MyApp extends StatelessWidget {
           '/sale': (context) => SalePage(),
           '/items': (context) => ItemsPage(),
           '/checkOutCart': (context) => CheckOutCart(),
+          '/postCheckOut': (context) => PostCheckoutPage(),
         },
       ),
     );

@@ -1,0 +1,30 @@
+import 'package:flutter/material.dart';
+import '../models/receipt.dart';
+import '../repositories/receipt_repository.dart';
+
+class ReceiptProvider with ChangeNotifier {
+  final ReceiptRepository _receiptRepository;
+
+  List<Receipt> _receipts = [];
+  List<Receipt> get receipts => _receipts;
+
+  ReceiptProvider(this._receiptRepository);
+
+  Future<void> fetchReceipts() async {
+    _receipts = await _receiptRepository.getAll();
+    notifyListeners();
+  }
+
+  Receipt? get latestReceipt => _receipts.isNotEmpty ? _receipts.last : null;
+
+  Future<void> createReceipt(Receipt receipt) async {
+    await _receiptRepository.insertReceipt(receipt);
+    _receipts.add(receipt);
+    notifyListeners();
+  }
+
+  Future<void> deleteReceipt(int id) async {
+    await _receiptRepository.deleteReceipt(id);
+    await fetchReceipts();
+  }
+}
