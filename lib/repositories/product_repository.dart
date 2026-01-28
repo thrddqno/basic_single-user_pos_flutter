@@ -90,33 +90,28 @@ class ProductRepository {
 
     final productRows = await db.query('products');
 
-    List<Product> products = [];
+    final modifierRows = await db.query('product_modifiers');
 
-    for (final row in productRows) {
-      final productId = row['id'] as int;
-
-      final modifierRows = await db.query(
-        'product_modifiers',
-        where: 'product_id = ?',
-        whereArgs: [productId],
-      );
-
-      final enabledModifierIds = modifierRows
-          .map((r) => r['modifier_id'] as int)
-          .toList();
-
-      products.add(
-        Product(
-          id: productId,
-          name: row['name'] as String,
-          categoryId: row['category_id'] as int,
-          price: (row['price'] as num).toDouble(),
-          cost: (row['cost'] as num?)?.toDouble(),
-          color: row['color'] as String,
-          enabledModifierIds: enabledModifierIds,
-        ),
-      );
+    final modifiersByProduct = <int, List<int>>{};
+    for (var row in modifierRows) {
+      final pid = row['product_id'] as int;
+      modifiersByProduct
+          .putIfAbsent(pid, () => [])
+          .add(row['modifier_id'] as int);
     }
+
+    final products = productRows.map((row) {
+      final productId = row['id'] as int;
+      return Product(
+        id: productId,
+        name: row['name'] as String,
+        categoryId: row['category_id'] as int,
+        price: (row['price'] as num).toDouble(),
+        cost: (row['cost'] as num?)?.toDouble(),
+        color: row['color'] as String,
+        enabledModifierIds: modifiersByProduct[productId] ?? [],
+      );
+    }).toList();
 
     return products;
   }
