@@ -1,7 +1,6 @@
 import 'package:basic_single_user_pos_flutter/models/cart_item.dart';
 import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
-import 'package:collection/src/iterable_extensions.dart';
 
 import 'package:flutter/material.dart';
 
@@ -12,21 +11,49 @@ class CartProvider extends ChangeNotifier {
 
   ModifierProvider modifierProvider;
 
-  CartProvider({required this.modifierProvider});
+  double _cachedTotal = 0;
+  bool _totalDirty = true;
 
-  void addItem(Product product, int quantity, Map<int, Set<int>> modifiers) {
-    double modifierTotal = 0;
-    modifiers.forEach((modifierId, optionIds) {
-      final options = modifierProvider.optionsForModifier(modifierId);
-      for (var id in optionIds) {
-        final option = options.firstWhereOrNull((o) => o.id == id);
+  CartProvider({required this.modifierProvider}) {
+    modifierProvider.addListener(_onModifierDataChanged);
+  }
+
+  void _onModifierDataChanged() {
+    _totalDirty = true;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    modifierProvider.removeListener(_onModifierDataChanged);
+    super.dispose();
+  }
+
+  double _modifierTotalForSelection(Map<int, Set<int>> modifiers) {
+    double sum = 0;
+    for (final entry in modifiers.entries) {
+      for (final optionId in entry.value) {
+        final option = modifierProvider.optionById(optionId);
         if (option != null) {
-          modifierTotal += option.price ?? 0;
+          sum += option.price ?? 0;
         }
       }
-    });
+    }
+    return sum;
+  }
 
-    double itemTotal = (product.price + modifierTotal) * quantity;
+  double _computeTotal() {
+    double sum = 0;
+    for (final item in _items) {
+      final modifierTotal = _modifierTotalForSelection(item.selectedModifiers);
+      sum += (item.product.price + modifierTotal) * item.quantity;
+    }
+    return sum;
+  }
+
+  void addItem(Product product, int quantity, Map<int, Set<int>> modifiers) {
+    final modifierTotal = _modifierTotalForSelection(modifiers);
+    final itemTotal = (product.price + modifierTotal) * quantity;
 
     if (itemTotal <= 0) return;
 
@@ -55,6 +82,7 @@ class CartProvider extends ChangeNotifier {
       );
     }
 
+    _totalDirty = true;
     notifyListeners();
   }
 
@@ -77,6 +105,7 @@ class CartProvider extends ChangeNotifier {
 
   void removeItem(int index) {
     _items.removeAt(index);
+    _totalDirty = true;
     notifyListeners();
   }
 
@@ -87,6 +116,7 @@ class CartProvider extends ChangeNotifier {
       quantity: newQuantity,
       selectedModifiers: _items[index].selectedModifiers,
     );
+    _totalDirty = true;
     notifyListeners();
   }
 
@@ -101,18 +131,8 @@ class CartProvider extends ChangeNotifier {
       return;
     }
 
-    double modifierTotal = 0;
-    modifiers.forEach((modifierId, optionIds) {
-      final options = modifierProvider.optionsForModifier(modifierId);
-      for (var id in optionIds) {
-        final option = options.firstWhereOrNull((o) => o.id == id);
-        if (option != null) {
-          modifierTotal += option.price ?? 0;
-        }
-      }
-    });
-
-    double itemTotal = (product.price + modifierTotal) * quantity;
+    final modifierTotal = _modifierTotalForSelection(modifiers);
+    final itemTotal = (product.price + modifierTotal) * quantity;
 
     if (itemTotal <= 0) {
       removeItem(index);
@@ -125,32 +145,22 @@ class CartProvider extends ChangeNotifier {
       selectedModifiers: modifiers,
     );
 
+    _totalDirty = true;
     notifyListeners();
   }
 
   double get total {
-    double sum = 0;
-    for (var item in _items) {
-      double modifierTotal = 0;
-      item.selectedModifiers.forEach((modifierId, optionIds) {
-        final options = modifierProvider.optionsForModifier(modifierId);
-
-        if (options.isEmpty) return;
-
-        for (var id in optionIds) {
-          final option = options.firstWhereOrNull((o) => o.id == id);
-          if (option != null) {
-            modifierTotal += option.price ?? 0;
-          }
-        }
-      });
-      sum += (item.product.price + modifierTotal) * item.quantity;
+    if (_totalDirty) {
+      _cachedTotal = _computeTotal();
+      _totalDirty = false;
     }
-    return sum;
+    return _cachedTotal;
   }
 
   void clear() {
     _items.clear();
+    _cachedTotal = 0;
+    _totalDirty = false;
     notifyListeners();
   }
 }

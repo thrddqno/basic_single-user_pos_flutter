@@ -27,19 +27,26 @@ void main() {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
+
   final DatabaseService databaseService = DatabaseService();
+  late final ProductRepository productRepository = ProductRepository(
+    databaseService,
+  );
+  late final CategoryRepository categoryRepository = CategoryRepository(
+    databaseService,
+  );
+  late final ModifierRepository modifierRepository = ModifierRepository(
+    databaseService,
+  );
+  late final ModifierOptionRepository modifierOptionRepository =
+      ModifierOptionRepository(databaseService);
+  late final ReceiptRepository receiptRepository = ReceiptRepository(
+    databaseService,
+    productRepository,
+  );
 
   @override
   Widget build(BuildContext context) {
-    final productRepository = ProductRepository(databaseService);
-    final categoryRepository = CategoryRepository(databaseService);
-    final modifierRepository = ModifierRepository(databaseService);
-    final modifierOptionRepository = ModifierOptionRepository(databaseService);
-    final receiptRepository = ReceiptRepository(
-      databaseService,
-      productRepository,
-    );
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(

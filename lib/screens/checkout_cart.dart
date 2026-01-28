@@ -145,13 +145,15 @@ class _CheckOutCartState extends State<CheckOutCart> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Total Amount
-                        Text(
-                          '₱${context.read<CartProvider>().total.toStringAsFixed(2)}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
+                        Selector<CartProvider, double>(
+                          selector: (_, cart) => cart.total,
+                          builder: (context, total, _) => Text(
+                            '₱${total.toStringAsFixed(2)}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         Text(
@@ -162,7 +164,6 @@ class _CheckOutCartState extends State<CheckOutCart> {
 
                         SizedBox(height: 100),
 
-                        // Cash Received
                         Row(
                           children: [
                             Icon(Icons.payments, color: Colors.grey),
@@ -204,13 +205,15 @@ class _CheckOutCartState extends State<CheckOutCart> {
 
                         SizedBox(height: 24),
 
-                        Row(
-                          spacing: 20,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children:
-                              BillsHelper.predictChange(
-                                context.read<CartProvider>().total,
-                              ).map((value) {
+                        Selector<CartProvider, double>(
+                          selector: (_, cart) => cart.total,
+                          builder: (context, total, _) {
+                            return Row(
+                              spacing: 20,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: BillsHelper.predictChange(total).map((
+                                value,
+                              ) {
                                 return Expanded(
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
@@ -236,11 +239,12 @@ class _CheckOutCartState extends State<CheckOutCart> {
                                   ),
                                 );
                               }).toList(),
+                            );
+                          },
                         ),
 
                         SizedBox(height: 24),
 
-                        // Card Payment Button
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             side: BorderSide(color: Colors.grey.shade200),

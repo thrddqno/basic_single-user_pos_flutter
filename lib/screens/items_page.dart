@@ -22,15 +22,6 @@ class _ItemsPageState extends State<ItemsPage> {
   int? selectedCategoryId;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductProvider>().loadProducts();
-      context.read<CategoryProvider>().loadCategories();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: DrawerWidget(

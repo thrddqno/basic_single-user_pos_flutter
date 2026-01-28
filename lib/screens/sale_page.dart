@@ -20,15 +20,6 @@ class SalePage extends StatefulWidget {
 
 class _SalePageState extends State<SalePage> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductProvider>().loadProducts();
-      context.read<CategoryProvider>().loadCategories();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final categoryProvider = context.watch<CategoryProvider>();
     final selectedId = categoryProvider.selectedCategoryId;
@@ -202,7 +193,7 @@ class _SalePageState extends State<SalePage> {
 
                           return ElevatedButton(
                             onPressed: isCartEmpty
-                                ? null // disables button if cart is empty
+                                ? null
                                 : () {
                                     Navigator.pushNamed(
                                       context,

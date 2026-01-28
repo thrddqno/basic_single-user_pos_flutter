@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
-import 'package:collection/collection.dart';
 
 class TicketWidget extends StatelessWidget {
   final bool readOnly;
@@ -37,41 +36,26 @@ class TicketWidget extends StatelessWidget {
                               .read<ModifierProvider>();
 
                           final modifierNames = item.selectedModifiers.entries
-                              .map((entry) {
-                                final options = modifierProvider
-                                    .optionsForModifier(entry.key);
-                                return entry.value
-                                    .map(
-                                      (optionId) =>
-                                          options
-                                              .firstWhereOrNull(
-                                                (o) => o.id == optionId,
-                                              )
-                                              ?.name ??
-                                          'Unknown',
-                                    )
-                                    .join(", ");
-                              })
+                              .expand(
+                                (entry) => entry.value.map((optionId) {
+                                  return modifierProvider
+                                          .optionById(optionId)
+                                          ?.name ??
+                                      'Unknown';
+                                }),
+                              )
                               .where((name) => name.isNotEmpty)
                               .join(", ");
 
                           double modifierTotal = 0;
-                          item.selectedModifiers.forEach((
-                            modifierId,
-                            optionIds,
-                          ) {
-                            final options = modifierProvider.optionsForModifier(
-                              modifierId,
-                            );
-                            for (var id in optionIds) {
-                              final option = options.firstWhereOrNull(
-                                (o) => o.id == id,
-                              );
-                              if (option != null) {
-                                modifierTotal += option.price ?? 0;
+                          for (final entry in item.selectedModifiers.entries) {
+                            for (final optionId in entry.value) {
+                              final opt = modifierProvider.optionById(optionId);
+                              if (opt != null) {
+                                modifierTotal += opt.price ?? 0;
                               }
                             }
-                          });
+                          }
 
                           final itemTotal =
                               (item.product.price + modifierTotal) *
