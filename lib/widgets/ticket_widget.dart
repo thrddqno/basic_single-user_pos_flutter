@@ -75,12 +75,36 @@ class TicketWidget extends StatelessWidget {
                               (item.product.price + modifierTotal) *
                               item.quantity;
 
-                          return TicketItem(
-                            index: index,
-                            productName: item.product.name,
-                            qty: item.quantity,
-                            itemTotal: itemTotal,
-                            modifierOptions: modifierNames,
+                          return Dismissible(
+                            key: ValueKey('${item.product.id}-$index'),
+                            direction:
+                                DismissDirection.endToStart, // swipe left
+                            dismissThresholds: {
+                              DismissDirection.endToStart: 0.1,
+                            },
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              color: Colors.redAccent,
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                            onDismissed: (_) {
+                              context.read<CartProvider>().removeItem(index);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TicketItem(
+                                index: index,
+                                productName: item.product.name,
+                                qty: item.quantity,
+                                itemTotal: itemTotal,
+                                modifierOptions: modifierNames,
+                              ),
+                            ),
                           );
                         },
                       ),

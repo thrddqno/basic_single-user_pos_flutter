@@ -188,31 +188,33 @@ class _SalePageState extends State<SalePage> {
           ),
           Expanded(
             flex: 2,
-            child: Container(
-              decoration: BoxDecoration(color: Colors.white),
-              child: Column(
-                children: [
-                  Expanded(child: TicketWidget()),
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        elevation: 2,
-                        backgroundColor: Colors.teal,
-                        minimumSize: Size(double.infinity, 70),
-                      ),
-                      child: Text(
-                        'Charge',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+            child: ClipRect(
+              child: Container(
+                decoration: BoxDecoration(color: Colors.white),
+                child: Column(
+                  children: [
+                    Expanded(child: TicketWidget()),
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          elevation: 2,
+                          backgroundColor: Colors.teal,
+                          minimumSize: Size(double.infinity, 70),
+                        ),
+                        child: Text(
+                          'Charge',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
