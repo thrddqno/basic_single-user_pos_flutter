@@ -4,6 +4,7 @@ import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
 import 'package:basic_single_user_pos_flutter/repositories/modifier_option_repository.dart';
 import 'package:basic_single_user_pos_flutter/repositories/modifier_repository.dart';
+import 'package:basic_single_user_pos_flutter/screens/checkout_cart.dart';
 import 'package:basic_single_user_pos_flutter/screens/forms/category_form.dart';
 import 'package:basic_single_user_pos_flutter/screens/forms/modifer_form.dart';
 import 'package:basic_single_user_pos_flutter/screens/forms/products_form.dart';
@@ -64,6 +65,7 @@ class MyApp extends StatelessWidget {
           '/addModifier': (context) => ModifierFormPage(),
           '/sale': (context) => SalePage(),
           '/items': (context) => ItemsPage(),
+          '/checkOutCart': (context) => CheckOutCart(),
         },
       ),
     );
