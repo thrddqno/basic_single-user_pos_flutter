@@ -16,6 +16,10 @@ class ModifierProvider extends ChangeNotifier {
   List<Modifier> get modifiers => _modifiers;
   List<ModifierOption> get options => _options;
 
+  Future<ModifierOption> getOption(int id) async {
+    return await modifierOptionRepository.getModifierOption(id);
+  }
+
   List<ModifierOption> optionsForModifier(int modifierId) {
     return _options.where((o) => o.modifierId == modifierId).toList();
   }

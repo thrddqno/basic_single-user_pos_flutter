@@ -20,7 +20,6 @@ class ModifierOptionRepository {
     );
   }
 
-  //get
   Future<List<ModifierOption>> getAll() async {
     final db = await _databaseService.database;
     final List<Map<String, dynamic>> maps = await db.query(_tableName);
@@ -56,7 +55,7 @@ class ModifierOptionRepository {
     );
   }
 
-  Future<ModifierOption?> getModifierOption(int id) async {
+  Future<ModifierOption> getModifierOption(int id) async {
     final db = await _databaseService.database;
     final List<Map<String, dynamic>> result = await db.query(
       _tableName,
@@ -64,7 +63,7 @@ class ModifierOptionRepository {
       whereArgs: [id],
       limit: 1,
     );
-    return (result.isEmpty) ? null : ModifierOption.fromMap(result.first);
+    return ModifierOption.fromMap(result.first);
   }
 
   Future<void> update(ModifierOption modifierOption) async {

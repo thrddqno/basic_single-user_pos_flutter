@@ -1,15 +1,15 @@
 import 'package:basic_single_user_pos_flutter/helpers/color_helper.dart';
 import 'package:basic_single_user_pos_flutter/widgets/drawer_widget.dart';
 import 'package:basic_single_user_pos_flutter/widgets/ticket_widget.dart';
+import 'package:basic_single_user_pos_flutter/widgets/modifier_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
 import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
-import 'package:basic_single_user_pos_flutter/models/modifier.dart';
+import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
 
 class SalePage extends StatefulWidget {
   const SalePage({super.key});
@@ -193,7 +193,6 @@ class _SalePageState extends State<SalePage> {
               child: Column(
                 children: [
                   Expanded(child: TicketWidget()),
-
                   Padding(
                     padding: EdgeInsets.all(16),
                     child: ElevatedButton(
@@ -313,234 +312,19 @@ class _ProductTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         final modifierProvider = context.read<ModifierProvider>();
+        final cartProvider = context.read<CartProvider>();
 
         if (product.enabledModifierIds.isNotEmpty) {
-          final Map<int, Set<int>> selectedOptionsPerModifier = {};
-
           showDialog(
             context: context,
-            builder: (_) => Dialog(
-              backgroundColor: Colors.transparent,
-              insetPadding: EdgeInsets.symmetric(horizontal: 100, vertical: 24),
-              child: Container(
-                decoration: BoxDecoration(color: Colors.white),
-                padding: EdgeInsets.all(8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          onPressed: () => Navigator.pop(context),
-                          icon: Icon(Icons.clear),
-                        ),
-                        Expanded(
-                          child: Text(
-                            product.name,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'ADD',
-                            style: TextStyle(color: Colors.teal),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Divider(),
-                    Expanded(
-                      child: ListView(
-                        children: [
-                          ...product.enabledModifierIds.map((modifierId) {
-                            final modifier = modifierProvider.modifiers
-                                .firstWhere(
-                                  (m) => m.id == modifierId,
-                                  orElse: () => Modifier(
-                                    id: modifierId,
-                                    name: 'Unknown Modifier',
-                                  ),
-                                );
-
-                            final options = modifierProvider.optionsForModifier(
-                              modifierId,
-                            );
-
-                            selectedOptionsPerModifier.putIfAbsent(
-                              modifierId,
-                              () => {},
-                            );
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 8,
-                                  ),
-                                  child: Text(
-                                    modifier.name,
-                                    style: TextStyle(
-                                      color: Colors.teal,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height:
-                                      ((options.length / 2).ceil() * 55) +
-                                      ((options.length / 2).ceil() * 16),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: options.length,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          mainAxisSpacing: 16,
-                                          crossAxisSpacing: 16,
-                                          childAspectRatio: 10,
-                                        ),
-                                    itemBuilder: (context, index) {
-                                      final option = options[index];
-                                      final isSelected =
-                                          selectedOptionsPerModifier[modifierId]!
-                                              .contains(option.id);
-
-                                      return InkWell(
-                                        onTap: () {
-                                          if (isSelected) {
-                                            selectedOptionsPerModifier[modifierId]!
-                                                .remove(option.id);
-                                          } else {
-                                            selectedOptionsPerModifier[modifierId]!
-                                                .add(option.id!);
-                                          }
-
-                                          (context as Element).markNeedsBuild();
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: isSelected
-                                                ? Colors.teal.withValues(
-                                                    alpha: 0.3,
-                                                  )
-                                                : Colors.transparent,
-                                            border: Border.all(
-                                              color: isSelected
-                                                  ? Colors.teal
-                                                  : Colors.grey.withValues(
-                                                      alpha: 0.3,
-                                                    ),
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(option.name),
-                                              Text(
-                                                '₱ ${option.price.toString()}',
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            );
-                          }),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Text(
-                                  'Quantity',
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.grey[100],
-                                        foregroundColor: Colors
-                                            .black, // icon color// square size
-                                        shape: RoundedRectangleBorder(
-                                          // small rounded corners
-                                          side: BorderSide(
-                                            color: Colors.grey, // border color
-                                            width: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {},
-                                      child: Icon(Icons.remove),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TextField(
-                                      decoration: const InputDecoration(
-                                        labelText: 'Quantity',
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.grey[100],
-                                        foregroundColor: Colors
-                                            .black, // icon color// square size
-                                        shape: RoundedRectangleBorder(
-                                          // small rounded corners
-                                          side: BorderSide(
-                                            color: Colors.grey, // border color
-                                            width: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {},
-                                      child: Icon(Icons.add),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            builder: (_) => ModifierDialog(
+              product: product,
+              modifierProvider: modifierProvider,
+              cartProvider: cartProvider,
             ),
           );
         } else {
-          debugPrint('Added ${product.name} to ticket directly');
+          cartProvider.addItem(product, 1, {});
         }
       },
 

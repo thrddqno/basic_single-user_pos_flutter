@@ -1,5 +1,9 @@
+import 'package:basic_single_user_pos_flutter/widgets/modifier_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
+import 'package:collection/collection.dart';
 
 class TicketWidget extends StatelessWidget {
   const TicketWidget({super.key});
@@ -8,110 +12,160 @@ class TicketWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // ── Cart content (goes UNDER the header)
-        Padding(
-          padding: const EdgeInsets.only(top: headerHeight),
-          child: Container(
-            color: Colors.white,
-            child: Column(
-              children: [
-                //cart items
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, _) {
+        return Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: headerHeight),
+              child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        itemCount: cartProvider.items.length,
+                        itemBuilder: (context, index) {
+                          final item = cartProvider.items[index];
+                          final modifierProvider = context
+                              .read<ModifierProvider>();
+
+                          final modifierNames = item.selectedModifiers.entries
+                              .map((entry) {
+                                final options = modifierProvider
+                                    .optionsForModifier(entry.key);
+                                return entry.value
+                                    .map(
+                                      (optionId) =>
+                                          options
+                                              .firstWhereOrNull(
+                                                (o) => o.id == optionId,
+                                              )
+                                              ?.name ??
+                                          'Unknown',
+                                    )
+                                    .join(", ");
+                              })
+                              .where((name) => name.isNotEmpty)
+                              .join(", ");
+
+                          double modifierTotal = 0;
+                          item.selectedModifiers.forEach((
+                            modifierId,
+                            optionIds,
+                          ) {
+                            final options = modifierProvider.optionsForModifier(
+                              modifierId,
+                            );
+                            for (var id in optionIds) {
+                              final option = options.firstWhereOrNull(
+                                (o) => o.id == id,
+                              );
+                              if (option != null) {
+                                modifierTotal += option.price ?? 0;
+                              }
+                            }
+                          });
+
+                          final itemTotal =
+                              (item.product.price + modifierTotal) *
+                              item.quantity;
+
+                          return TicketItem(
+                            index: index,
+                            productName: item.product.name,
+                            qty: item.quantity,
+                            itemTotal: itemTotal,
+                            modifierOptions: modifierNames,
+                          );
+                        },
+                      ),
                     ),
-                    children: [
-                      TicketItem(
-                        productName: 'Bread',
-                        qty: 2,
-                        itemTotal: 102,
-                        modifierOptions: 'chicken, pasta, shit',
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                      TicketItem(
-                        productName: 'Wafer Cone',
-                        qty: 2,
-                        itemTotal: 30,
-                        modifierOptions: '',
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '₱${cartProvider.total.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Total',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'PriceTotal',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
 
-        // ── Cart header (floats ABOVE)
-        Material(
-          elevation: 2,
-          color: Colors.white,
-          child: Container(
-            height: headerHeight,
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 25),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Cart',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
+            Material(
+              elevation: 2,
+              color: Colors.white,
+              child: Container(
+                height: headerHeight,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 25,
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    FontAwesomeIcons.ellipsisVertical,
-                    color: Colors.black54,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Cart',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      onSelected: (value) => value == 'clear'
+                          ? context.read<CartProvider>().clear()
+                          : '',
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'clear',
+                          child: Text('Clear Cart'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
 
 class TicketItem extends StatelessWidget {
+  final int index;
   final String productName;
   final int qty;
-  final int itemTotal;
+  final double itemTotal;
   final String? modifierOptions;
 
   const TicketItem({
+    required this.index,
     required this.productName,
     required this.qty,
     required this.itemTotal,
@@ -121,43 +175,72 @@ class TicketItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6), // spacing between items
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$productName x$qty',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                if (modifierOptions!.isNotEmpty)
-                  Text(
-                    modifierOptions!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black54,
-                    ),
-                  ),
-              ],
-            ),
-          ),
+    return InkWell(
+      onTap: () {
+        final cartProvider = context.read<CartProvider>();
+        final modifierProvider = context.read<ModifierProvider>();
+        final item = cartProvider.items[index];
 
-          // Item total
-          Text(
-            '₱$itemTotal',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        showDialog(
+          context: context,
+          builder: (_) => ModifierDialog(
+            product: item.product,
+            modifierProvider: modifierProvider,
+            cartProvider: cartProvider,
+            editingItem: item,
+            editingItemIndex: index,
           ),
-        ],
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    spacing: 10,
+                    children: [
+                      Text(
+                        productName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        'x${qty.toString()}',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (modifierOptions!.isNotEmpty)
+                    Text(
+                      modifierOptions!,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black54,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            Text(
+              '₱$itemTotal',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }

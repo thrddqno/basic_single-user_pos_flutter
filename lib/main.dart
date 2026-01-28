@@ -1,3 +1,4 @@
+import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
@@ -44,6 +45,10 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               ModifierProvider(modifierRepository, modifierOptionRepository)
                 ..loadAll(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              CartProvider(modifierProvider: context.read<ModifierProvider>()),
         ),
       ],
       child: MaterialApp(
