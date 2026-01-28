@@ -15,6 +15,21 @@ class CartProvider extends ChangeNotifier {
   CartProvider({required this.modifierProvider});
 
   void addItem(Product product, int quantity, Map<int, Set<int>> modifiers) {
+    double modifierTotal = 0;
+    modifiers.forEach((modifierId, optionIds) {
+      final options = modifierProvider.optionsForModifier(modifierId);
+      for (var id in optionIds) {
+        final option = options.firstWhereOrNull((o) => o.id == id);
+        if (option != null) {
+          modifierTotal += option.price ?? 0;
+        }
+      }
+    });
+
+    double itemTotal = (product.price + modifierTotal) * quantity;
+
+    if (itemTotal <= 0) return;
+
     int existingIndex = -1;
     for (int i = 0; i < _items.length; i++) {
       if (_items[i].product.id == product.id &&
@@ -39,6 +54,7 @@ class CartProvider extends ChangeNotifier {
         ),
       );
     }
+
     notifyListeners();
   }
 
@@ -84,11 +100,31 @@ class CartProvider extends ChangeNotifier {
       removeItem(index);
       return;
     }
+
+    double modifierTotal = 0;
+    modifiers.forEach((modifierId, optionIds) {
+      final options = modifierProvider.optionsForModifier(modifierId);
+      for (var id in optionIds) {
+        final option = options.firstWhereOrNull((o) => o.id == id);
+        if (option != null) {
+          modifierTotal += option.price ?? 0;
+        }
+      }
+    });
+
+    double itemTotal = (product.price + modifierTotal) * quantity;
+
+    if (itemTotal <= 0) {
+      removeItem(index);
+      return;
+    }
+
     _items[index] = CartItem(
       product: product,
       quantity: quantity,
       selectedModifiers: modifiers,
     );
+
     notifyListeners();
   }
 
