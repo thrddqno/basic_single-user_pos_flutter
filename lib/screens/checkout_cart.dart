@@ -17,11 +17,18 @@ class _CheckOutCartState extends State<CheckOutCart> {
         children: [
           Expanded(
             flex: 2,
-            child: ClipRect(
-              child: Container(
-                decoration: BoxDecoration(color: Colors.white),
-                child: TicketWidget(readOnly: true),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    offset: Offset(2, 0),
+                    blurRadius: 2,
+                  ),
+                ],
               ),
+              child: TicketWidget(readOnly: true),
             ),
           ),
           Expanded(
