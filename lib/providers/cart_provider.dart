@@ -74,6 +74,24 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateItem(
+    int index,
+    Product product,
+    int quantity,
+    Map<int, Set<int>> modifiers,
+  ) {
+    if (quantity <= 0) {
+      removeItem(index);
+      return;
+    }
+    _items[index] = CartItem(
+      product: product,
+      quantity: quantity,
+      selectedModifiers: modifiers,
+    );
+    notifyListeners();
+  }
+
   double get total {
     double sum = 0;
     for (var item in _items) {

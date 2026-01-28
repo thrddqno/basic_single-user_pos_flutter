@@ -64,8 +64,8 @@ class _ModifierDialogState extends State<ModifierDialog> {
       }
     } else {
       if (widget.editingItem != null && widget.editingItemIndex != null) {
-        widget.cartProvider.removeItem(widget.editingItemIndex!);
-        widget.cartProvider.addItem(
+        widget.cartProvider.updateItem(
+          widget.editingItemIndex!,
           widget.product,
           quantity,
           selectedOptionsPerModifier,
