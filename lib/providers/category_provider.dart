@@ -8,10 +8,22 @@ class CategoryProvider with ChangeNotifier {
   List<Category> _categories = [];
   List<Category> get categories => _categories;
 
+  int? _selectedCategoryId;
+  String _selectedCategoryName = 'All';
+
+  int? get selectedCategoryId => _selectedCategoryId;
+  String get selectedCategoryName => _selectedCategoryName;
+
   CategoryProvider(this.categoryRepository);
 
   Future<void> loadCategories() async {
     _categories = await categoryRepository.getAll();
+    notifyListeners();
+  }
+
+  void selectCategory(int? id, String name) {
+    _selectedCategoryId = id;
+    _selectedCategoryName = name;
     notifyListeners();
   }
 
@@ -35,6 +47,12 @@ class CategoryProvider with ChangeNotifier {
     await categoryRepository.delete(id);
 
     _categories.removeWhere((c) => c.id == id);
+
+    if (_selectedCategoryId == id) {
+      _selectedCategoryId = null;
+      _selectedCategoryName = 'All';
+    }
+
     notifyListeners();
   }
 }
