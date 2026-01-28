@@ -19,6 +19,7 @@ class ItemsPage extends StatefulWidget {
 
 class _ItemsPageState extends State<ItemsPage> {
   String selectedTab = 'Items';
+  int? selectedCategoryId;
 
   @override
   void initState() {
@@ -95,48 +96,115 @@ class _ItemsPageState extends State<ItemsPage> {
                   ),
                 ),
 
-                //right page
                 Expanded(
                   child: Container(
                     margin: EdgeInsets.only(left: 1),
                     color: Colors.white,
                     child: Stack(
                       children: [
-                        ListView(
-                          padding: EdgeInsets.zero,
+                        Column(
                           children: [
-                            if (selectedTab == 'Items') ...[
-                              ...context.watch<ProductProvider>().products.map((
-                                product,
-                              ) {
-                                final category = context
-                                    .read<CategoryProvider>()
-                                    .categories
-                                    .firstWhere(
-                                      (c) => c.id == product.categoryId,
-                                    );
-                                return _productTile(product, category.name);
-                              }),
-                            ] else if (selectedTab == 'Categories') ...[
-                              ...context
-                                  .watch<CategoryProvider>()
-                                  .categories
-                                  .map((category) {
-                                    return _categoryTile(category);
-                                  }),
-                            ] else if (selectedTab == 'Modifiers') ...[
-                              ...context
-                                  .watch<ModifierProvider>()
-                                  .modifiers
-                                  .map((modifier) {
-                                    return _modifierTile(modifier);
-                                  }),
-                            ],
+                            if (selectedTab == 'Items')
+                              Container(
+                                height: 60,
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  children: [
+                                    _categoryFilterButton(null, 'All'),
+                                    ...context
+                                        .watch<CategoryProvider>()
+                                        .categories
+                                        .map((c) {
+                                          if (c.name == 'No Category')
+                                            return SizedBox.shrink();
+                                          return _categoryFilterButton(
+                                            c.id,
+                                            c.name,
+                                          );
+                                        })
+                                        .toList(),
+                                  ],
+                                ),
+                              ),
+
+                            Expanded(
+                              child: ListView(
+                                padding: EdgeInsets.zero,
+                                children: [
+                                  if (selectedTab == 'Items') ...[
+                                    ...(() {
+                                      final allProducts = context
+                                          .watch<ProductProvider>()
+                                          .products;
+                                      final filteredProducts =
+                                          selectedCategoryId == null
+                                          ? allProducts
+                                          : allProducts
+                                                .where(
+                                                  (p) =>
+                                                      p.categoryId ==
+                                                      selectedCategoryId,
+                                                )
+                                                .toList();
+
+                                      if (filteredProducts.isEmpty) {
+                                        return [
+                                          Center(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(
+                                                16.0,
+                                              ),
+                                              child: Text(
+                                                'No products under this category',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ];
+                                      }
+
+                                      return filteredProducts.map((product) {
+                                        final category = context
+                                            .read<CategoryProvider>()
+                                            .categories
+                                            .firstWhere(
+                                              (c) => c.id == product.categoryId,
+                                            );
+                                        return _productTile(
+                                          product,
+                                          category.name,
+                                        );
+                                      }).toList();
+                                    })(),
+                                  ] else if (selectedTab == 'Categories') ...[
+                                    ...context
+                                        .watch<CategoryProvider>()
+                                        .categories
+                                        .map((category) {
+                                          return _categoryTile(category);
+                                        }),
+                                  ] else if (selectedTab == 'Modifiers') ...[
+                                    ...context
+                                        .watch<ModifierProvider>()
+                                        .modifiers
+                                        .map((modifier) {
+                                          return _modifierTile(modifier);
+                                        }),
+                                  ],
+                                ],
+                              ),
+                            ),
                           ],
                         ),
+
                         Positioned(
                           right: 24,
-                          bottom: 24,
+                          bottom: 16,
                           child: FloatingActionButton(
                             shape: CircleBorder(),
                             backgroundColor: Colors.teal,
@@ -157,9 +225,6 @@ class _ItemsPageState extends State<ItemsPage> {
                     ),
                   ),
                 ),
-                // case modifiers
-
-                // case categories
               ],
             ),
           ),
@@ -285,6 +350,24 @@ class _ItemsPageState extends State<ItemsPage> {
         ),
         Divider(color: Colors.grey.shade300, thickness: 1),
       ],
+    );
+  }
+
+  Widget _categoryFilterButton(int? categoryId, String name) {
+    final bool isSelected = selectedCategoryId == categoryId;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ChoiceChip(
+        label: Text(name),
+        selected: isSelected,
+        onSelected: (_) {
+          setState(() {
+            selectedCategoryId = categoryId;
+          });
+        },
+        selectedColor: Colors.teal.shade200,
+      ),
     );
   }
 }
