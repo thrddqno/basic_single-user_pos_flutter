@@ -17,11 +17,19 @@ import 'package:basic_single_user_pos_flutter/screens/post_checkout_page.dart';
 import 'package:basic_single_user_pos_flutter/screens/receipts_page.dart';
 import 'package:basic_single_user_pos_flutter/services/database_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:basic_single_user_pos_flutter/screens/sale_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+
   runApp(MyApp());
 }
 
