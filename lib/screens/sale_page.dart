@@ -338,7 +338,7 @@ class _ProductTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: ColorHelper.fromHex(product.color).withValues(),
         ),
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

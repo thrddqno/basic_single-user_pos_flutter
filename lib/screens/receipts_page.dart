@@ -18,7 +18,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
   @override
   Widget build(BuildContext context) {
     final receipts = context.watch<ReceiptProvider>().receipts;
-    final groupedReceipts = groupReceiptsByDate(receipts);
+    final groupedReceipts = _groupReceiptsByDate(receipts);
     final dates = groupedReceipts.keys.toList()..sort((a, b) => b.compareTo(a));
 
     final List<dynamic> listItems = [];
@@ -269,7 +269,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                           ),
                                         ),
                                         Text(
-                                          'Biboy\s Ice Cream and Waffles',
+                                          'Biboy\'s Ice Cream and Waffles',
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.normal,
@@ -454,13 +454,12 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
     String hh = hour.toString().padLeft(2, '0');
 
     String min = date.minute.toString().padLeft(2, '0');
-    String ss = date.second.toString().padLeft(2, '0');
     String period = date.hour >= 12 ? 'PM' : 'AM';
 
-    return '$yyyy-$dd-$mm $hh:$min:$ss $period';
+    return '$yyyy-$dd-$mm $hh:$min $period';
   }
 
-  Map<DateTime, List<Receipt>> groupReceiptsByDate(List<Receipt> receipts) {
+  Map<DateTime, List<Receipt>> _groupReceiptsByDate(List<Receipt> receipts) {
     final Map<DateTime, List<Receipt>> grouped = {};
 
     final sortedReceipts = List<Receipt>.from(receipts)
