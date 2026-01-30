@@ -37,7 +37,9 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
     if (modifierArg != null) {
       final provider = context.read<ModifierProvider>();
       initialModifierValues = {'name': modifierArg!.name};
-      _options = provider.optionsForModifier(modifierArg!.id!);
+      _options = List<ModifierOption>.from(
+        provider.optionsForModifier(modifierArg!.id!),
+      );
     } else {
       initialModifierValues = {'name': ''};
       _options = [];
