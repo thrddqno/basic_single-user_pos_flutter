@@ -1,4 +1,5 @@
 import 'package:basic_single_user_pos_flutter/helpers/color_helper.dart';
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/widgets/drawer_widget.dart';
 import 'package:basic_single_user_pos_flutter/widgets/ticket_widget.dart';
 import 'package:basic_single_user_pos_flutter/widgets/modifier_dialog.dart';
@@ -354,7 +355,7 @@ class _ProductTile extends StatelessWidget {
             ),
             SizedBox(height: 4),
             Text(
-              '₱${product.price.toStringAsFixed(2)}',
+              '₱${formatPrice(product.price)}',
               style: TextStyle(color: Colors.white),
             ),
           ],

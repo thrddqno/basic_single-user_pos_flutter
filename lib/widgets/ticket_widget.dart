@@ -1,3 +1,4 @@
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/widgets/modifier_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -131,7 +132,7 @@ class TicketWidget extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '₱${cartProvider.total.toStringAsFixed(2)}',
+                            '₱${formatPrice(cartProvider.total)}',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -271,7 +272,7 @@ class TicketItem extends StatelessWidget {
             ),
 
             Text(
-              '₱$itemTotal',
+              '₱${formatPrice(itemTotal)}',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],

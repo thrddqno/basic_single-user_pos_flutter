@@ -1,4 +1,5 @@
 import 'package:basic_single_user_pos_flutter/helpers/bills_helper.dart';
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/models/modifier_option.dart';
 import 'package:basic_single_user_pos_flutter/models/receipt.dart';
 import 'package:basic_single_user_pos_flutter/models/receipt_item.dart';
@@ -25,7 +26,7 @@ class _CheckOutCartState extends State<CheckOutCart> {
   void initState() {
     super.initState();
     final total = context.read<CartProvider>().total;
-    _cashController = TextEditingController(text: total.toStringAsFixed(2));
+    _cashController = TextEditingController(text: formatPrice(total));
   }
 
   @override
@@ -148,7 +149,7 @@ class _CheckOutCartState extends State<CheckOutCart> {
                         Selector<CartProvider, double>(
                           selector: (_, cart) => cart.total,
                           builder: (context, total, _) => Text(
-                            '₱${total.toStringAsFixed(2)}',
+                            '₱${formatPrice(total)}',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 48,

@@ -1,3 +1,4 @@
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/models/modifier.dart';
 import 'package:basic_single_user_pos_flutter/models/modifier_option.dart';
 import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
@@ -197,13 +198,11 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
               }
             }
             if (modifierArg != null) {
-              // Existing modifier being edited
               final oldOptionIds = _options
                   .where((o) => o.id != null)
                   .map((o) => o.id!)
                   .toSet();
 
-              // Delete options that existed in DB but were removed locally
               final existingOptionsInDb = await modifierProvider
                   .optionsForModifier(modifierArg!.id!);
 
@@ -215,7 +214,6 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
                 await modifierProvider.deleteOption(option.id!);
               }
 
-              // Update existing / add new options
               for (var option in _options) {
                 final key = option.id?.toString() ?? option.tempKey;
                 final updatedOption = ModifierOption(
@@ -318,9 +316,7 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
     );
     _priceControllers.putIfAbsent(
       key,
-      () => TextEditingController(
-        text: option.price == null ? '' : option.price!.toString(),
-      ),
+      () => TextEditingController(text: formatPrice(option.price)),
     );
 
     return Column(

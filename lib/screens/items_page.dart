@@ -1,4 +1,5 @@
 import 'package:basic_single_user_pos_flutter/helpers/color_helper.dart';
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/models/modifier.dart';
 import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/widgets/drawer_widget.dart';
@@ -286,7 +287,7 @@ class _ItemsPageState extends State<ItemsPage> {
             style: TextStyle(fontSize: 14, color: Colors.black54),
           ),
           trailing: Text(
-            '₱ ${product.price.toStringAsFixed(2)}',
+            '₱${formatPrice(product.price)}',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

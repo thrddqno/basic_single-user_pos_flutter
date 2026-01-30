@@ -1,3 +1,4 @@
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/receipt_provider.dart';
 import 'package:basic_single_user_pos_flutter/widgets/ticket_widget.dart';
@@ -27,7 +28,7 @@ class _PostCheckoutPageState extends State<PostCheckoutPage> {
 
     final totalPaid = isCash ? (receipt.cashReceived ?? total) : total;
 
-    final change = isCash ? totalPaid - total : 0;
+    double change = isCash ? totalPaid - total : 0;
 
     return Scaffold(
       body: Row(
@@ -75,7 +76,7 @@ class _PostCheckoutPageState extends State<PostCheckoutPage> {
                               Column(
                                 children: [
                                   Text(
-                                    '₱${totalPaid.toStringAsFixed(2)}',
+                                    '₱${formatPrice(totalPaid)}',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 48,
@@ -97,7 +98,7 @@ class _PostCheckoutPageState extends State<PostCheckoutPage> {
                                 Column(
                                   children: [
                                     Text(
-                                      '₱${change.toStringAsFixed(2)}',
+                                      '₱${formatPrice(change)}',
                                       style: const TextStyle(
                                         fontSize: 48,
                                         fontWeight: FontWeight.bold,

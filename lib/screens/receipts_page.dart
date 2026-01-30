@@ -1,3 +1,4 @@
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/models/receipt.dart';
 import 'package:basic_single_user_pos_flutter/providers/receipt_provider.dart';
 import 'package:basic_single_user_pos_flutter/widgets/drawer_widget.dart';
@@ -144,7 +145,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                '₱${receipt.total.toStringAsFixed(2)}',
+                                                '₱${formatPrice(receipt.total)}',
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 18,
@@ -240,7 +241,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      '₱${_selectedReceipt!.total}',
+                                      '₱${formatPrice(_selectedReceipt!.total)}',
                                       style: TextStyle(
                                         fontSize: 42,
                                         fontWeight: FontWeight.bold,
@@ -297,7 +298,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                                   '${item.product.name} x${item.quantity}',
                                                 ),
                                                 Text(
-                                                  '₱${(item.total * item.quantity).toStringAsFixed(2)}',
+                                                  '₱${formatPrice(item.total * item.quantity)}',
                                                 ),
                                               ],
                                             ),
@@ -332,7 +333,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                           ),
                                         ),
                                         Text(
-                                          '₱${_selectedReceipt!.total.toStringAsFixed(2)}',
+                                          '₱${formatPrice(_selectedReceipt!.total)}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -348,7 +349,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                         children: [
                                           Text('Cash Received'),
                                           Text(
-                                            '₱${_selectedReceipt!.cashReceived!.toStringAsFixed(2)}',
+                                            '₱${formatPrice(_selectedReceipt!.cashReceived)}',
                                           ),
                                         ],
                                       ),
@@ -358,7 +359,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                         children: [
                                           Text('Change'),
                                           Text(
-                                            '₱${_selectedReceipt!.cashReceived! - _selectedReceipt!.total}',
+                                            '₱${formatPrice(_selectedReceipt!.cashReceived! - _selectedReceipt!.total)}',
                                           ),
                                         ],
                                       ),
@@ -369,7 +370,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                         children: [
                                           Text('Card'),
                                           Text(
-                                            '₱${_selectedReceipt!.total.toStringAsFixed(2)}',
+                                            '₱${formatPrice(_selectedReceipt!.total)}',
                                           ),
                                         ],
                                       ),

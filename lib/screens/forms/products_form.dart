@@ -1,4 +1,5 @@
 import 'package:basic_single_user_pos_flutter/helpers/color_helper.dart';
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
@@ -43,8 +44,8 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
     initialValues = {
       'productName': productArg?.name ?? '',
       'category': productArg?.categoryId ?? 1,
-      'cost': productArg?.cost?.toString() ?? '',
-      'price': productArg?.price.toString() ?? '',
+      'cost': formatPrice(productArg?.cost),
+      'price': formatPrice(productArg?.price),
       'color': productArg != null
           ? ColorHelper.fromHex(productArg!.color)
           : Colors.grey,
@@ -228,14 +229,12 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
       decoration: const InputDecoration(labelText: 'Category'),
       onChanged: (value) {
         if (value == -1) {
-          // Reset the dropdown value immediately
           _formKey.currentState!.fields['category']!.didChange(
             initialValues['category'],
           );
 
-          // Navigate safely after microtask
           Future.microtask(() {
-            if (!mounted) return; // <- guard against disposed widget
+            if (!mounted) return;
             Navigator.pushNamed(context, '/addCategory');
           });
         }

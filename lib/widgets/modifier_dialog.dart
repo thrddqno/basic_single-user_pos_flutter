@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
 import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/models/modifier.dart';
 import 'package:basic_single_user_pos_flutter/models/cart_item.dart';
@@ -101,7 +102,7 @@ class _ModifierDialogState extends State<ModifierDialog> {
                 ),
                 Expanded(
                   child: Text(
-                    '${widget.product.name} - $totalPrice',
+                    '${widget.product.name} - ₱${formatPrice(totalPrice)}',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -199,7 +200,7 @@ class _ModifierDialogState extends State<ModifierDialog> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(option.name),
-                                      Text('₱ ${option.price.toString()}'),
+                                      Text('₱${formatPrice(option.price)}'),
                                     ],
                                   ),
                                 ),
