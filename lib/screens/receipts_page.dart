@@ -17,6 +17,14 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
   Receipt? _selectedReceipt;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReceiptProvider>().loadIfNeeded();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final receipts = context.watch<ReceiptProvider>().receipts;
     final groupedReceipts = _groupReceiptsByDate(receipts);
@@ -298,7 +306,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                                   '${item.product.name} x${item.quantity}',
                                                 ),
                                                 Text(
-                                                  '₱${formatPrice(item.total * item.quantity)}',
+                                                  '₱${formatPrice(item.total)}',
                                                 ),
                                               ],
                                             ),

@@ -8,6 +8,7 @@ class ReceiptProvider with ChangeNotifier {
   List<Receipt> _receipts = [];
   List<Receipt> get receipts => _receipts;
   bool _isLoading = false;
+  bool _hasLoaded = false;
 
   bool get isLoading => _isLoading;
 
@@ -15,9 +16,16 @@ class ReceiptProvider with ChangeNotifier {
 
   Future<void> loadAll() async {
     _isLoading = true;
+    notifyListeners();
     _receipts = await _receiptRepository.getAll();
     _isLoading = false;
+    _hasLoaded = true;
     notifyListeners();
+  }
+
+  Future<void> loadIfNeeded() async {
+    if (_hasLoaded || _isLoading) return;
+    await loadAll();
   }
 
   Receipt? get latestReceipt => _receipts.isNotEmpty ? _receipts.last : null;

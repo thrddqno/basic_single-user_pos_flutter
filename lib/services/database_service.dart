@@ -6,7 +6,7 @@ class DatabaseService {
 
   final String dbName;
   final bool inMemory;
-  //make databases testable by making service configurable
+
   DatabaseService({
     this.dbName = 'basic_single_user_pos.db',
     this.inMemory = false,
@@ -25,8 +25,9 @@ class DatabaseService {
     return await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 1,
+      version: 3,
       onConfigure: (db) async => await db.execute('PRAGMA foreign_keys = ON'),
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -43,20 +44,16 @@ class DatabaseService {
     _database = null;
   }
 
-  // ---------------- SCHEMA ----------------
   Future<void> _onCreate(Database db, int version) async {
-    // --- independent tables ---
-    // category table
     await db.execute('''
     CREATE TABLE categories(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL
     )
   ''');
-    // insert default as no category
+
     await db.execute('INSERT INTO categories (name) VALUES (\'No Category\')');
 
-    // modifier table
     await db.execute('''
     CREATE TABLE modifiers(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,7 +61,6 @@ class DatabaseService {
     )
   ''');
 
-    // modifier options table
     await db.execute('''
     CREATE TABLE modifier_options(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,8 +71,6 @@ class DatabaseService {
     )
   ''');
 
-    // --- dependent tables ---
-    // products table
     await db.execute('''
     CREATE TABLE products(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -99,7 +93,6 @@ class DatabaseService {
     )
   ''');
 
-    // receipts table
     await db.execute('''
     CREATE TABLE receipts(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,27 +102,97 @@ class DatabaseService {
     )
   ''');
 
-    // receipts item table
     await db.execute('''
     CREATE TABLE receipt_items(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       receipt_id INTEGER NOT NULL,
       product_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
-      FOREIGN KEY(receipt_id) REFERENCES receipts(id),
-      FOREIGN KEY(product_id) REFERENCES products(id)
+      product_name TEXT,
+      product_price REAL,
+      FOREIGN KEY(receipt_id) REFERENCES receipts(id)
     )
   ''');
 
-    // receipt item options which are options in the receipt items table
     await db.execute('''
     CREATE TABLE receipt_item_options(
       receipt_item_id INTEGER NOT NULL,
       modifier_option_id INTEGER NOT NULL,
+      option_name TEXT,
+      option_price REAL,
       PRIMARY KEY(receipt_item_id, modifier_option_id),
       FOREIGN KEY(receipt_item_id) REFERENCES receipt_items(id),
       FOREIGN KEY(modifier_option_id) REFERENCES modifier_options(id)
     )
   ''');
+  }
+
+  static Future<void> _onUpgrade(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
+    if (oldVersion < 2) {
+      await db.execute(
+        'ALTER TABLE receipt_items ADD COLUMN product_name TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE receipt_items ADD COLUMN product_price REAL',
+      );
+      await db.execute(
+        'ALTER TABLE receipt_item_options ADD COLUMN option_name TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE receipt_item_options ADD COLUMN option_price REAL',
+      );
+    }
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE receipt_item_options_temp(
+          receipt_item_id INTEGER NOT NULL,
+          modifier_option_id INTEGER NOT NULL,
+          option_name TEXT,
+          option_price REAL,
+          PRIMARY KEY(receipt_item_id, modifier_option_id)
+        )
+      ''');
+      await db.execute(
+        'INSERT INTO receipt_item_options_temp SELECT receipt_item_id, modifier_option_id, option_name, option_price FROM receipt_item_options',
+      );
+      await db.execute('DROP TABLE receipt_item_options');
+
+      await db.execute('''
+        CREATE TABLE receipt_items_new(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          receipt_id INTEGER NOT NULL,
+          product_id INTEGER NOT NULL,
+          quantity INTEGER NOT NULL,
+          product_name TEXT,
+          product_price REAL,
+          FOREIGN KEY(receipt_id) REFERENCES receipts(id)
+        )
+      ''');
+      await db.execute(
+        'INSERT INTO receipt_items_new SELECT id, receipt_id, product_id, quantity, product_name, product_price FROM receipt_items',
+      );
+      await db.execute('DROP TABLE receipt_items');
+      await db.execute('ALTER TABLE receipt_items_new RENAME TO receipt_items');
+
+      await db.execute('''
+        CREATE TABLE receipt_item_options(
+          receipt_item_id INTEGER NOT NULL,
+          modifier_option_id INTEGER NOT NULL,
+          option_name TEXT,
+          option_price REAL,
+          PRIMARY KEY(receipt_item_id, modifier_option_id),
+          FOREIGN KEY(receipt_item_id) REFERENCES receipt_items(id),
+          FOREIGN KEY(modifier_option_id) REFERENCES modifier_options(id)
+        )
+      ''');
+      await db.execute(
+        'INSERT INTO receipt_item_options SELECT receipt_item_id, modifier_option_id, option_name, option_price FROM receipt_item_options_temp',
+      );
+      await db.execute('DROP TABLE receipt_item_options_temp');
+    }
   }
 }

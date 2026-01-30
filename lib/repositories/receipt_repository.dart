@@ -1,3 +1,4 @@
+import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/models/receipt.dart';
 import 'package:basic_single_user_pos_flutter/models/receipt_item.dart';
 import 'package:basic_single_user_pos_flutter/models/modifier_option.dart';
@@ -25,12 +26,16 @@ class ReceiptRepository {
         'receipt_id': receiptId,
         'product_id': item.product.id,
         'quantity': item.quantity,
+        'product_name': item.product.name,
+        'product_price': item.product.price,
       });
 
       for (var option in item.options) {
         await db.insert('receipt_item_options', {
           'receipt_item_id': receiptItemId,
           'modifier_option_id': option.id,
+          'option_name': option.name,
+          'option_price': option.price,
         }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
     }
@@ -57,14 +62,6 @@ class ReceiptRepository {
     }
     return receipts;
   }
-
-  //parse date
-  /*
-  String _parseDate(DateTime date) {
-    return '${date.year.toString().padLeft(4, '0')}-'
-        '${date.month.toString().padLeft(2, '0')}-'
-        '${date.day.toString().padLeft(2, '0')}';
-  }*/
 
   Future<List<Receipt>> getReceiptByDateRange(
     DateTime start,
@@ -93,7 +90,6 @@ class ReceiptRepository {
   Future<Receipt?> getReceiptById(int id) async {
     final db = await _databaseService.database;
 
-    // 1️⃣ Get the receipt
     final receiptRow = await db.query(
       'receipts',
       where: 'id = ?',
@@ -103,37 +99,94 @@ class ReceiptRepository {
 
     final r = receiptRow.first;
 
-    // 2️⃣ Get all items
     final itemRows = await db.query(
       'receipt_items',
       where: 'receipt_id = ?',
       whereArgs: [id],
     );
-    final items = <ReceiptItem>[];
 
+    final allOptionRows = await db.rawQuery(
+      '''
+      SELECT rio.receipt_item_id, rio.modifier_option_id, rio.option_name, rio.option_price
+      FROM receipt_item_options rio
+      INNER JOIN receipt_items ri ON rio.receipt_item_id = ri.id
+      WHERE ri.receipt_id = ?
+      ''',
+      [id],
+    );
+
+    final optionsByItemId = <int, List<Map<String, dynamic>>>{};
+    final optionIdsNeedingFallback = <int>{};
+    for (var optRow in allOptionRows) {
+      final itemId = optRow['receipt_item_id'] as int;
+      optionsByItemId.putIfAbsent(itemId, () => []).add(optRow);
+      final snapshotName = optRow['option_name'] as String?;
+      final snapshotPrice = optRow['option_price'];
+      final optId = optRow['modifier_option_id'] as int?;
+      if (optId != null && (snapshotName == null || snapshotPrice == null)) {
+        optionIdsNeedingFallback.add(optId);
+      }
+    }
+
+    final optionFallbackMap = <int, ModifierOption>{};
+    if (optionIdsNeedingFallback.isNotEmpty) {
+      final placeholders = List.filled(
+        optionIdsNeedingFallback.length,
+        '?',
+      ).join(',');
+      final moRows = await db.rawQuery(
+        'SELECT id, modifier_id, name, price FROM modifier_options WHERE id IN ($placeholders)',
+        optionIdsNeedingFallback.toList(),
+      );
+      for (var mo in moRows) {
+        optionFallbackMap[mo['id'] as int] = ModifierOption.fromMap(mo);
+      }
+    }
+
+    final items = <ReceiptItem>[];
     for (var row in itemRows) {
       final productId = row['product_id'] as int;
-      final product = await ProductRepository(
-        _databaseService,
-      ).getById(productId);
+      Product product =
+          await productRepository.getById(productId) ??
+          _productFromSnapshot(
+            productId,
+            row['product_name'] as String?,
+            row['product_price'],
+          );
 
-      // 3️⃣ Get modifier options
-      final optionRows = await db.rawQuery(
-        '''
-        SELECT mo.id, mo.modifier_id, mo.name, mo.price
-        FROM receipt_item_options rio
-        JOIN modifier_options mo ON rio.modifier_option_id = mo.id
-        WHERE rio.receipt_item_id = ?
-      ''',
-        [row['id']],
-      );
+      final optionRowsForItem = optionsByItemId[row['id'] as int] ?? [];
+      final options = <ModifierOption>[];
+      for (var optRow in optionRowsForItem) {
+        final optId = optRow['modifier_option_id'] as int?;
+        final snapshotName = optRow['option_name'] as String?;
+        final snapshotPrice = optRow['option_price'];
 
-      final options = optionRows.map((o) => ModifierOption.fromMap(o)).toList();
+        if (snapshotName != null && snapshotPrice != null) {
+          options.add(
+            ModifierOption(
+              id: optId,
+              modifierId: null,
+              name: snapshotName,
+              price: (snapshotPrice as num).toDouble(),
+            ),
+          );
+        } else if (optId != null) {
+          options.add(
+            optionFallbackMap[optId] ??
+                ModifierOption(
+                  id: optId,
+                  modifierId: null,
+                  name: 'Unknown option',
+                  price: 0,
+                ),
+          );
+        }
+      }
 
       items.add(
         ReceiptItem(
           id: row['id'] as int,
-          product: product!,
+          product: product,
           options: options,
           quantity: row['quantity'] as int,
         ),
@@ -146,6 +199,18 @@ class ReceiptRepository {
       items: items,
       paymentMethod: r['payment_method'] as String,
       cashReceived: r['cash_received'] as double?,
+    );
+  }
+
+  Product _productFromSnapshot(int id, String? name, dynamic price) {
+    return Product(
+      id: id,
+      name: name ?? 'Unknown product',
+      categoryId: 1,
+      price: (price is num) ? price.toDouble() : 0,
+      enabledModifierIds: const [],
+      cost: null,
+      color: '#9E9E9E',
     );
   }
 

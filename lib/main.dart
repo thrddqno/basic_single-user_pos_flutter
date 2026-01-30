@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
               CartProvider(modifierProvider: context.read<ModifierProvider>()),
         ),
         ChangeNotifierProvider(
-          create: (context) => ReceiptProvider(receiptRepository)..loadAll(),
+          create: (context) => ReceiptProvider(receiptRepository),
         ),
       ],
       child: MaterialApp(
