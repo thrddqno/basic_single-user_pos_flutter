@@ -147,6 +147,29 @@ class DatabaseService {
       );
     }
     if (oldVersion < 3) {
+      final optionsInfo = await db.rawQuery(
+        'PRAGMA table_info(receipt_item_options)',
+      );
+      final hasOptionName = optionsInfo.any((r) => r['name'] == 'option_name');
+      if (!hasOptionName) {
+        await db.execute(
+          'ALTER TABLE receipt_item_options ADD COLUMN option_name TEXT',
+        );
+        await db.execute(
+          'ALTER TABLE receipt_item_options ADD COLUMN option_price REAL',
+        );
+      }
+      final itemsInfo = await db.rawQuery('PRAGMA table_info(receipt_items)');
+      final hasProductName = itemsInfo.any((r) => r['name'] == 'product_name');
+      if (!hasProductName) {
+        await db.execute(
+          'ALTER TABLE receipt_items ADD COLUMN product_name TEXT',
+        );
+        await db.execute(
+          'ALTER TABLE receipt_items ADD COLUMN product_price REAL',
+        );
+      }
+
       await db.execute('''
         CREATE TABLE receipt_item_options_temp(
           receipt_item_id INTEGER NOT NULL,
