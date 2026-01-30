@@ -100,6 +100,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                           children: [
                             Expanded(
                               child: ListView.builder(
+                                padding: EdgeInsets.zero,
                                 itemCount: listItems.length,
                                 itemBuilder: (context, index) {
                                   final item = listItems[index];
@@ -107,7 +108,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                                   if (item is DateTime) {
                                     return Container(
                                       padding: const EdgeInsets.symmetric(
-                                        vertical: 0,
+                                        vertical: 10,
                                         horizontal: 20,
                                       ),
                                       child: Text(
@@ -217,182 +218,187 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                             ),
                           ),
 
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                              horizontal: 100,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 4,
-                                ),
-                              ],
-                            ),
-                            child: SingleChildScrollView(
-                              padding: const EdgeInsets.all(70),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '₱${_selectedReceipt!.total}',
-                                    style: TextStyle(
-                                      fontSize: 42,
-                                      fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Container(
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 100,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    offset: Offset(0, 0),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.all(70),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '₱${_selectedReceipt!.total}',
+                                      style: TextStyle(
+                                        fontSize: 42,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'Total',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
-                                      color: Colors.grey,
+                                    Text(
+                                      'Total',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.normal,
+                                        color: Colors.grey,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 20),
-                                  const Divider(),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    spacing: 8,
-                                    children: [
-                                      Text(
-                                        'Business Name: ',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Biboy\s Ice Cream and Waffles',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  const Divider(),
-                                  SizedBox(height: 8),
-
-                                  ..._selectedReceipt!.items.map(
-                                    (item) => Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 4,
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                '${item.product.name} x${item.quantity}',
-                                              ),
-                                              Text(
-                                                '₱${(item.total * item.quantity).toStringAsFixed(2)}',
-                                              ),
-                                            ],
+                                    SizedBox(height: 20),
+                                    const Divider(),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      spacing: 8,
+                                      children: [
+                                        Text(
+                                          'Business Name: ',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.normal,
+                                            color: Colors.grey.shade600,
                                           ),
-                                          if (item.options.isNotEmpty)
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                item.options
-                                                    .map((opt) => opt.name)
-                                                    .join(', '),
-                                                style: TextStyle(
-                                                  fontSize: 13,
-                                                  color: Colors.grey[600],
+                                        ),
+                                        Text(
+                                          'Biboy\s Ice Cream and Waffles',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8),
+                                    const Divider(),
+                                    SizedBox(height: 8),
+
+                                    ..._selectedReceipt!.items.map(
+                                      (item) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 4,
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  '${item.product.name} x${item.quantity}',
+                                                ),
+                                                Text(
+                                                  '₱${(item.total * item.quantity).toStringAsFixed(2)}',
+                                                ),
+                                              ],
+                                            ),
+                                            if (item.options.isNotEmpty)
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  item.options
+                                                      .map((opt) => opt.name)
+                                                      .join(', '),
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.grey[600],
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  const Divider(),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        'Total',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        '₱${_selectedReceipt!.total.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8),
-                                  if (_selectedReceipt!.paymentMethod ==
-                                      'cash') ...[
+                                    SizedBox(height: 8),
+                                    const Divider(),
+                                    SizedBox(height: 8),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('Cash Received'),
-                                        Text(
-                                          '₱${_selectedReceipt!.cashReceived!.toStringAsFixed(2)}',
+                                        const Text(
+                                          'Total',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text('Change'),
-                                        Text(
-                                          '₱${_selectedReceipt!.cashReceived! - _selectedReceipt!.total}',
-                                        ),
-                                      ],
-                                    ),
-                                  ] else ...[
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text('Card'),
                                         Text(
                                           '₱${_selectedReceipt!.total.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8),
+                                    if (_selectedReceipt!.paymentMethod ==
+                                        'cash') ...[
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Cash Received'),
+                                          Text(
+                                            '₱${_selectedReceipt!.cashReceived!.toStringAsFixed(2)}',
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Change'),
+                                          Text(
+                                            '₱${_selectedReceipt!.cashReceived! - _selectedReceipt!.total}',
+                                          ),
+                                        ],
+                                      ),
+                                    ] else ...[
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Card'),
+                                          Text(
+                                            '₱${_selectedReceipt!.total.toStringAsFixed(2)}',
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                    SizedBox(height: 8),
+                                    const Divider(),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          _formatFullDate(
+                                            _selectedReceipt!.date,
+                                          ),
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Receipt #${_selectedReceipt!.id}',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ],
-                                  SizedBox(height: 8),
-                                  const Divider(),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _formatFullDate(_selectedReceipt!.date),
-                                        style: TextStyle(
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Receipt #${_selectedReceipt!.id}',
-                                        style: TextStyle(
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
