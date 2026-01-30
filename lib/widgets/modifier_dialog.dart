@@ -101,7 +101,7 @@ class _ModifierDialogState extends State<ModifierDialog> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.product.name,
+                    '${widget.product.name} - $totalPrice',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -297,5 +297,23 @@ class _ModifierDialogState extends State<ModifierDialog> {
         ),
       ),
     );
+  }
+
+  double get totalPrice {
+    double total = widget.product.price;
+
+    selectedOptionsPerModifier.forEach((modifierId, optionIds) {
+      for (var optionId in optionIds) {
+        final option = widget.modifierProvider.optionById(
+          optionId,
+        ); // get option
+        if (option != null) {
+          total += option.price ?? 0;
+        }
+      }
+    });
+
+    final quantity = int.tryParse(quantityController.text) ?? 1;
+    return total * quantity;
   }
 }
