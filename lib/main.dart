@@ -1,6 +1,7 @@
 import 'package:basic_single_user_pos_flutter/providers/analytics_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/printer_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/category_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/receipt_provider.dart';
@@ -16,6 +17,7 @@ import 'package:basic_single_user_pos_flutter/screens/items_page.dart';
 import 'package:basic_single_user_pos_flutter/repositories/product_repository.dart';
 import 'package:basic_single_user_pos_flutter/repositories/category_repository.dart';
 import 'package:basic_single_user_pos_flutter/screens/post_checkout_page.dart';
+import 'package:basic_single_user_pos_flutter/screens/printer_settings_page.dart';
 import 'package:basic_single_user_pos_flutter/screens/receipts_page.dart';
 import 'package:basic_single_user_pos_flutter/services/database_service.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +85,7 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               AnalyticsProvider(receiptRepository, categoryRepository),
         ),
+        ChangeNotifierProvider(create: (context) => PrinterProvider()),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -101,6 +104,7 @@ class MyApp extends StatelessWidget {
           '/checkOutCart': (context) => CheckOutCart(),
           '/postCheckOut': (context) => PostCheckoutPage(),
           '/analyticsPage': (context) => AnalyticsPage(),
+          '/settingsPage': (context) => PrinterSettingsPage(),
         },
       ),
     );

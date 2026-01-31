@@ -45,6 +45,8 @@ dependencies:
   syncfusion_flutter_charts: ^32.1.25
   syncfusion_flutter_datepicker: ^32.1.25
   crypto: ^3.0.7
+  flutter_thermal_printer: ^2.0.0
+  shared_preferences: ^2.5.4
 
 dev_dependencies:
   flutter_test:

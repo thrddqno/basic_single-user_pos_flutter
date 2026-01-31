@@ -1,11 +1,14 @@
 import 'package:basic_single_user_pos_flutter/helpers/bills_helper.dart';
 import 'package:basic_single_user_pos_flutter/helpers/price_helper.dart';
+
 import 'package:basic_single_user_pos_flutter/models/modifier_option.dart';
 import 'package:basic_single_user_pos_flutter/models/receipt.dart';
 import 'package:basic_single_user_pos_flutter/models/receipt_item.dart';
 import 'package:basic_single_user_pos_flutter/providers/cart_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/modifier_provider.dart';
+import 'package:basic_single_user_pos_flutter/providers/printer_provider.dart';
 import 'package:basic_single_user_pos_flutter/providers/receipt_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:basic_single_user_pos_flutter/widgets/ticket_widget.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -39,14 +42,17 @@ class _CheckOutCartState extends State<CheckOutCart> {
     final cartProvider = context.read<CartProvider>();
     final modifierProvider = context.read<ModifierProvider>();
     final receiptProvider = context.read<ReceiptProvider>();
+    final printerProvider = context.read<PrinterProvider>();
 
     double? cashReceived;
     if (method == 'cash') {
       cashReceived = double.tryParse(_cashController.text);
       if (cashReceived == null || cashReceived < cartProvider.total) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Cash received must cover total amount!')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Cash received must cover total amount!')),
+          );
+        }
         return;
       }
     }
@@ -81,8 +87,24 @@ class _CheckOutCartState extends State<CheckOutCart> {
 
     await receiptProvider.createReceipt(receipt);
 
-    if (!mounted) return;
+    if (printerProvider.connectedPrinter != null) {
+      _printReceiptAsync(printerProvider, receipt);
+    }
+
     Navigator.pushReplacementNamed(context, '/postCheckOut');
+  }
+
+  void _printReceiptAsync(PrinterProvider printerProvider, Receipt receipt) {
+    Future.microtask(() async {
+      try {
+        await printerProvider.printWidget(
+          context,
+          SizedBox(width: 1, height: 1),
+        );
+      } catch (e) {
+        debugPrint("Printing error: $e");
+      }
+    });
   }
 
   @override

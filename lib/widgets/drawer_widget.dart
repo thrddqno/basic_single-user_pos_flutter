@@ -62,6 +62,13 @@ class DrawerWidget extends StatelessWidget {
             routeName: '/analyticsPage',
             currentRoute: currentRoute,
           ),
+          Divider(),
+          DrawerTile(
+            icon: FontAwesomeIcons.gear,
+            label: 'Settings',
+            routeName: '/settingsPage',
+            currentRoute: currentRoute,
+          ),
         ],
       ),
     );
