@@ -11,7 +11,7 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <application
-        android:label="basic_single_user_pos_flutter"
+        android:label="SimplePOS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
