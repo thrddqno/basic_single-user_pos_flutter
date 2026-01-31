@@ -7,12 +7,16 @@ class ReceiptItem {
   final Product product;
   final List<ModifierOption> options;
   final int quantity;
+  final double? productCost;
+  final int? productCategoryId;
 
   ReceiptItem({
     this.id,
     required this.product,
     required this.options,
     required this.quantity,
+    this.productCost,
+    this.productCategoryId,
   });
 
   double get total {
@@ -26,6 +30,8 @@ class ReceiptItem {
     'options': options.map((option) => option.toMap()).toList(),
     'quantity': quantity,
     'total': total,
+    'productCost': productCost,
+    'productCategoryId': productCategoryId,
   };
 
   factory ReceiptItem.fromMap(Map<String, dynamic> map) => ReceiptItem(
@@ -35,6 +41,12 @@ class ReceiptItem {
         .map((option) => ModifierOption.fromMap(option))
         .toList(),
     quantity: map['quantity'],
+    productCost: map['productCost'] != null
+        ? (map['productCost'] as num).toDouble()
+        : null,
+    productCategoryId: map['productCategoryId'] != null
+        ? map['productCategoryId'] as int
+        : null,
   );
 
   String toJson() => json.encode(toMap());

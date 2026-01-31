@@ -28,6 +28,8 @@ class ReceiptRepository {
         'quantity': item.quantity,
         'product_name': item.product.name,
         'product_price': item.product.price,
+        'product_cost': item.product.cost,
+        'category_name': item.productCategoryId,
       });
 
       for (var option in item.options) {

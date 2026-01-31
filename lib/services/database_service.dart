@@ -25,7 +25,7 @@ class DatabaseService {
     return await openDatabase(
       path,
       onCreate: _onCreate,
-      version: 3,
+      version: 5,
       onConfigure: (db) async => await db.execute('PRAGMA foreign_keys = ON'),
       onUpgrade: _onUpgrade,
     );
@@ -216,6 +216,17 @@ class DatabaseService {
         'INSERT INTO receipt_item_options SELECT receipt_item_id, modifier_option_id, option_name, option_price FROM receipt_item_options_temp',
       );
       await db.execute('DROP TABLE receipt_item_options_temp');
+    }
+    if (oldVersion < 4) {
+      await db.execute(
+        'ALTER TABLE receipt_items ADD COLUMN product_cost REAL',
+      );
+    }
+
+    if (oldVersion < 5) {
+      await db.execute(
+        'ALTER TABLE receipt_items ADD COLUMN category_name TEXT',
+      );
     }
   }
 }
