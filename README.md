@@ -45,12 +45,17 @@
       </ul>
     </li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#demo">Demo</a></li>
     <li><a href="#license">License</a></li>
   </ol>
 </details>
 
 ## About The Project
-
+  <!-- Mockup Image -->
+<div align="center">
+  <img src="https://github.com/thrddqno/basic_single-user_pos_flutter/blob/main/images/mockup.png?raw=true" alt="App Mockup" width="700"/>
+</div>
+<br /><br />
 **basic_single-user_pos_flutter** is a single-device, single-user mobile point-of-sale (POS) system built with Flutter. It works completely offline, stores data locally using SQLite, and provides basic analytics to help small businesses track daily sales.
 
 **This project was inspired by a real need:** my parents run a small ice cream store, and we faced trust and record-keeping issues with daily ledgers and sales reports, and listing them manually on paper was a nuisance to our crew. Existing POS solutions were mostly cloud-based, which didn’t suit our small-scale offline needs. I couldn’t find an offline-first POS with built-in analytics, so I challenged myself to build one using my skills.
@@ -101,6 +106,13 @@ flutter run
 - [x] Receipt Management
 - [x] DateRange Analytics
 - [x] Printing Trigger
+
+## Demo
+<div align="center">
+
+  <!-- Demo GIF -->
+  <img src="https://github.com/thrddqno/basic_single-user_pos_flutter/blob/main/images/demo.gif?raw=true" alt="App Demo" width="1200"/>
+</div>
 
 ## License
 
