@@ -99,7 +99,8 @@ flutter run
 - [x] **Product & Modifier management**
 - [x] Sale Transactions & Checkout
 - [x] Receipt Management
-- [ ] DateRange Analytics
+- [x] DateRange Analytics
+- [x] Printing Trigger
 
 ## License
 
