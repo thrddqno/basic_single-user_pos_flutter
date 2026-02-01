@@ -28,7 +28,7 @@ class ReceiptRepository {
         'quantity': item.quantity,
         'product_name': item.product.name,
         'product_price': item.product.price,
-        'product_cost': item.product.cost,
+        'product_cost': item.productCost,
         'category_id': item.productCategoryId,
       });
 
@@ -191,6 +191,8 @@ class ReceiptRepository {
           product: product,
           options: options,
           quantity: row['quantity'] as int,
+          productCost: product.cost,
+          productCategoryId: product.categoryId,
         ),
       );
     }
