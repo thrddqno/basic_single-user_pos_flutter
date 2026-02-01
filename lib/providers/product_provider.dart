@@ -16,11 +16,10 @@ class ProductProvider with ChangeNotifier {
   }
 
   Future<int> addProduct(Product product) async {
-    final id = await productRepository.insert(product); // returns new ID
+    final id = await productRepository.insert(product);
     product.id = id;
     _products.add(product);
 
-    // Save product_modifiers
     await updateProductModifiers(id, product.enabledModifierIds);
     notifyListeners();
 
@@ -29,11 +28,14 @@ class ProductProvider with ChangeNotifier {
 
   Future<void> updateProduct(Product product) async {
     await productRepository.update(product);
+
     await updateProductModifiers(product.id!, product.enabledModifierIds);
+
+    final refreshedProduct = await productRepository.getById(product.id!);
 
     final index = _products.indexWhere((p) => p.id == product.id);
     if (index != -1) {
-      _products[index] = product;
+      _products[index] = refreshedProduct!;
       notifyListeners();
     }
   }
@@ -42,7 +44,6 @@ class ProductProvider with ChangeNotifier {
     int productId,
     List<int> modifierIds,
   ) async {
-    // Make sure your ProductRepository has this method
     await productRepository.updateProductModifiers(productId, modifierIds);
   }
 

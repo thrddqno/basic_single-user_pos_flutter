@@ -1,5 +1,6 @@
 import 'package:basic_single_user_pos_flutter/models/modifier.dart';
 import 'package:basic_single_user_pos_flutter/models/modifier_option.dart';
+import 'package:basic_single_user_pos_flutter/providers/product_provider.dart';
 import 'package:basic_single_user_pos_flutter/repositories/modifier_option_repository.dart';
 import 'package:basic_single_user_pos_flutter/repositories/modifier_repository.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +8,13 @@ import 'package:flutter/material.dart';
 class ModifierProvider extends ChangeNotifier {
   final ModifierRepository modifierRepository;
   final ModifierOptionRepository modifierOptionRepository;
+  final ProductProvider productProvider;
 
-  ModifierProvider(this.modifierRepository, this.modifierOptionRepository);
+  ModifierProvider(
+    this.modifierRepository,
+    this.modifierOptionRepository,
+    this.productProvider,
+  );
 
   List<Modifier> _modifiers = [];
   List<ModifierOption> _options = [];
@@ -107,6 +113,8 @@ class ModifierProvider extends ChangeNotifier {
     _options.removeWhere((o) => o.modifierId == modifierId);
     _rebuildOptionCaches();
     notifyListeners();
+
+    productProvider.loadProducts();
   }
 
   Future<void> deleteByModifierId(int modifierId) async {

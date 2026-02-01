@@ -70,9 +70,11 @@ class MyApp extends StatelessWidget {
               CategoryProvider(categoryRepository)..loadCategories(),
         ),
         ChangeNotifierProvider(
-          create: (context) =>
-              ModifierProvider(modifierRepository, modifierOptionRepository)
-                ..loadAll(),
+          create: (context) => ModifierProvider(
+            modifierRepository,
+            modifierOptionRepository,
+            context.read<ProductProvider>(),
+          )..loadAll(),
         ),
         ChangeNotifierProvider(
           create: (context) =>

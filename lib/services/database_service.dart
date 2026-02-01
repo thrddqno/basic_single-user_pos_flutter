@@ -124,8 +124,8 @@ class DatabaseService {
         option_name TEXT NOT NULL,
         option_price REAL NOT NULL,
         PRIMARY KEY(receipt_item_id, modifier_option_id),
-        FOREIGN KEY(receipt_item_id) REFERENCES receipt_items(id),
-        FOREIGN KEY(modifier_option_id) REFERENCES modifier_options(id)
+        FOREIGN KEY(receipt_item_id) REFERENCES receipt_items(id) ON DELETE CASCADE,
+        FOREIGN KEY(modifier_option_id) REFERENCES modifier_options(id) ON DELETE CASCADE
       )
     ''');
   }

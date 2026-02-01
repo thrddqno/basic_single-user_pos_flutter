@@ -1,5 +1,6 @@
 import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/services/database_service.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sql.dart';
 
 class ProductRepository {
@@ -69,20 +70,30 @@ class ProductRepository {
   ) async {
     final db = await _databaseService.database;
 
-    // Remove old links
-    await db.delete(
-      'product_modifiers',
-      where: 'product_id = ?',
-      whereArgs: [productId],
-    );
+    await db.transaction((txn) async {
+      await txn.delete(
+        'product_modifiers',
+        where: 'product_id = ?',
+        whereArgs: [productId],
+      );
 
-    // Insert new links
-    for (final modifierId in modifierIds) {
-      await db.insert('product_modifiers', {
-        'product_id': productId,
-        'modifier_id': modifierId,
-      });
-    }
+      final validModifierIds = <int>[];
+      for (final id in modifierIds) {
+        final exists = Sqflite.firstIntValue(
+          await txn.rawQuery('SELECT COUNT(*) FROM modifiers WHERE id = ?', [
+            id,
+          ]),
+        )!;
+        if (exists > 0) validModifierIds.add(id);
+      }
+
+      for (final modifierId in validModifierIds) {
+        await txn.insert('product_modifiers', {
+          'product_id': productId,
+          'modifier_id': modifierId,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+    });
   }
 
   Future<List<Product>> getAll() async {
@@ -119,31 +130,50 @@ class ProductRepository {
   Future<void> update(Product product) async {
     final db = await _databaseService.database;
 
-    await db.update(
-      'products',
-      {
-        'name': product.name,
-        'category_id': product.categoryId,
-        'price': product.price,
-        'cost': product.cost,
-        'color': product.color,
-      },
-      where: 'id = ?',
-      whereArgs: [product.id],
-    );
+    await db.transaction((txn) async {
+      await txn.update(
+        'products',
+        {
+          'name': product.name,
+          'category_id': product.categoryId,
+          'price': product.price,
+          'cost': product.cost,
+          'color': product.color,
+        },
+        where: 'id = ?',
+        whereArgs: [product.id],
+      );
 
-    await db.delete(
-      'product_modifiers',
-      where: 'product_id =?',
-      whereArgs: [product.id],
-    );
+      await txn.delete(
+        'product_modifiers',
+        where:
+            'product_id = ? AND modifier_id NOT IN (SELECT id FROM modifiers)',
+        whereArgs: [product.id],
+      );
 
-    for (final modifierId in product.enabledModifierIds) {
-      await db.insert('product_modifiers', {
-        'product_id': product.id,
-        'modifier_id': modifierId,
-      });
-    }
+      await txn.delete(
+        'product_modifiers',
+        where: 'product_id = ?',
+        whereArgs: [product.id],
+      );
+
+      final validModifierIds = <int>[];
+      for (final id in product.enabledModifierIds) {
+        final exists = Sqflite.firstIntValue(
+          await txn.rawQuery('SELECT COUNT(*) FROM modifiers WHERE id = ?', [
+            id,
+          ]),
+        )!;
+        if (exists > 0) validModifierIds.add(id);
+      }
+
+      for (final modifierId in validModifierIds) {
+        await txn.insert('product_modifiers', {
+          'product_id': product.id,
+          'modifier_id': modifierId,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+    });
   }
 
   Future<void> delete(int id) async {
