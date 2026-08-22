@@ -140,9 +140,17 @@ class DatabaseService {
   }
 
   Future<void> _createIndexes(Database db) async {
-    await db.execute('CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id)');
-    await db.execute('CREATE INDEX IF NOT EXISTS idx_modifier_options_modifier_id ON modifier_options(modifier_id)');
-    await db.execute('CREATE INDEX IF NOT EXISTS idx_receipt_items_receipt_id ON receipt_items(receipt_id)');
-    await db.execute('CREATE INDEX IF NOT EXISTS idx_receipts_date ON receipts(date)');
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_modifier_options_modifier_id ON modifier_options(modifier_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_receipt_items_receipt_id ON receipt_items(receipt_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_receipts_date ON receipts(date)',
+    );
   }
 }

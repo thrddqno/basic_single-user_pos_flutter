@@ -48,10 +48,7 @@ class ReceiptRepository {
   Future<List<Receipt>> getAll() async {
     final db = await _databaseService.database;
 
-    final receiptRows = await db.query(
-      'receipts',
-      orderBy: 'date DESC',
-    );
+    final receiptRows = await db.query('receipts', orderBy: 'date DESC');
 
     if (receiptRows.isEmpty) return [];
 
@@ -89,14 +86,11 @@ class ReceiptRepository {
 
     final itemIds = allItemRows.map((r) => r['id'] as int).toList();
     final allOptionRows = itemIds.isNotEmpty
-        ? await db.rawQuery(
-            '''
+        ? await db.rawQuery('''
             SELECT receipt_item_id, modifier_option_id, option_name, option_price
             FROM receipt_item_options
             WHERE receipt_item_id IN (${List.filled(itemIds.length, '?').join(',')})
-            ''',
-            itemIds,
-          )
+            ''', itemIds)
         : <Map<String, dynamic>>[];
 
     final optionsByItemId = <int, List<Map<String, dynamic>>>{};
@@ -190,7 +184,11 @@ class ReceiptRepository {
         );
       }
 
-      await txn.delete('receipt_items', where: 'receipt_id = ?', whereArgs: [id]);
+      await txn.delete(
+        'receipt_items',
+        where: 'receipt_id = ?',
+        whereArgs: [id],
+      );
       await txn.delete('receipts', where: 'id = ?', whereArgs: [id]);
     });
   }
