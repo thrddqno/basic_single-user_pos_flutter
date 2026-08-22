@@ -49,8 +49,12 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
 
   @override
   void dispose() {
-    _nameControllers.values.forEach((controller) => controller.dispose());
-    _priceControllers.values.forEach((controller) => controller.dispose());
+    for (final controller in _nameControllers.values) {
+      controller.dispose();
+    }
+    for (final controller in _priceControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -109,6 +113,7 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
   Widget _buildDeleteButton() {
     return IconButton(
       onPressed: () async {
+        final modifierProvider = context.read<ModifierProvider>();
         final confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -133,9 +138,8 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
         );
 
         if (confirm == true) {
-          await context.read<ModifierProvider>().deleteModifier(
-            modifierArg!.id!,
-          );
+          await modifierProvider.deleteModifier(modifierArg!.id!);
+          if (!mounted) return;
           Navigator.pop(context);
         }
       },
@@ -157,7 +161,7 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
             );
 
             bool allOptionsValid = true;
-            for (var option in _options) {
+            for (final option in _options) {
               final key = option.id?.toString() ?? option.tempKey;
               final name = formData['optionName_$key']?.toString().trim();
               final priceText = formData['price_$key']?.toString().trim();
@@ -184,7 +188,7 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
               await modifierProvider.addModifier(modifier);
               final newModifierId = modifierProvider.modifiers.last.id!;
 
-              for (var option in _options) {
+              for (final option in _options) {
                 final key = option.id?.toString() ?? option.tempKey;
                 final newOption = ModifierOption(
                   id: option.id,
@@ -203,18 +207,19 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
                   .map((o) => o.id!)
                   .toSet();
 
-              final existingOptionsInDb = await modifierProvider
-                  .optionsForModifier(modifierArg!.id!);
+              final existingOptionsInDb = modifierProvider.optionsForModifier(
+                modifierArg!.id!,
+              );
 
               final toDelete = existingOptionsInDb.where(
                 (option) => !oldOptionIds.contains(option.id),
               );
 
-              for (var option in toDelete) {
+              for (final option in toDelete) {
                 await modifierProvider.deleteOption(option.id!);
               }
 
-              for (var option in _options) {
+              for (final option in _options) {
                 final key = option.id?.toString() ?? option.tempKey;
                 final updatedOption = ModifierOption(
                   id: option.id,
@@ -233,8 +238,10 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
               }
             }
 
+            if (!mounted) return;
             Navigator.pop(context);
           } catch (e) {
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Error saving modifier: $e'),

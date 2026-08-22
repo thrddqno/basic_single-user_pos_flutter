@@ -108,14 +108,14 @@ class _ItemsPageState extends State<ItemsPage> {
                                         .watch<CategoryProvider>()
                                         .categories
                                         .map((c) {
-                                          if (c.name == 'No Category')
+                                          if (c.name == 'No Category') {
                                             return SizedBox.shrink();
+                                          }
                                           return _categoryFilterButton(
                                             c.id,
                                             c.name,
                                           );
-                                        })
-                                        .toList(),
+                                        }),
                                   ],
                                 ),
                               ),
@@ -171,7 +171,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                           product,
                                           category.name,
                                         );
-                                      }).toList();
+                                      });
                                     })(),
                                   ] else if (selectedTab == 'Categories') ...[
                                     ...context

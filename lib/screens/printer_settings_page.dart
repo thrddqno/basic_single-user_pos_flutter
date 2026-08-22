@@ -175,7 +175,7 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
                           )
                         : ListView.separated(
                             itemCount: printerProvider.printers.length,
-                            separatorBuilder: (_, __) => Divider(),
+                            separatorBuilder: (_, index) => Divider(),
                             itemBuilder: (context, index) {
                               final printer = printerProvider.printers[index];
                               final isConnected =
@@ -282,6 +282,7 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
   void _testPrint(PrinterProvider printerProvider) {
     Future.microtask(() async {
       try {
+        if (!mounted) return;
         await printerProvider.printWidget(
           context,
           SizedBox(width: 1, height: 1),

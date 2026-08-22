@@ -1,7 +1,6 @@
 import 'package:basic_single_user_pos_flutter/models/product.dart';
 import 'package:basic_single_user_pos_flutter/services/database_service.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sql.dart';
 
 class ProductRepository {
   final DatabaseService _databaseService;

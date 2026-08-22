@@ -88,6 +88,8 @@ class _CategoryFormPageState extends State<CategoryFormPage> {
   Widget _buildDeleteButton() {
     return IconButton(
       onPressed: () async {
+        final categoryProvider = context.read<CategoryProvider>();
+        final productProvider = context.read<ProductProvider>();
         final confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -112,10 +114,9 @@ class _CategoryFormPageState extends State<CategoryFormPage> {
         );
 
         if (confirm == true) {
-          await context.read<CategoryProvider>().deleteCategory(
-            categoryArg!.id!,
-          );
-          await context.read<ProductProvider>().loadProducts();
+          await categoryProvider.deleteCategory(categoryArg!.id!);
+          await productProvider.loadProducts();
+          if (!mounted) return;
           Navigator.pop(context);
         }
       },

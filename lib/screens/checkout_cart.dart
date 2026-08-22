@@ -87,6 +87,8 @@ class _CheckOutCartState extends State<CheckOutCart> {
 
     await receiptProvider.createReceipt(receipt);
 
+    if (!mounted) return;
+
     if (printerProvider.connectedPrinter != null) {
       _printReceiptAsync(printerProvider, receipt);
     }
@@ -97,6 +99,7 @@ class _CheckOutCartState extends State<CheckOutCart> {
   void _printReceiptAsync(PrinterProvider printerProvider, Receipt receipt) {
     Future.microtask(() async {
       try {
+        if (!mounted) return;
         await printerProvider.printWidget(
           context,
           SizedBox(width: 1, height: 1),

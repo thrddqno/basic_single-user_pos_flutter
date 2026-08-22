@@ -3,12 +3,18 @@ import 'package:flutter/material.dart';
 class ColorHelper {
   /// Convert a Flutter Color to hex string like "#RRGGBB"
   static String toHex(Color color, {bool includeAlpha = false}) {
-    final alpha = includeAlpha
-        ? color.alpha.toRadixString(16).padLeft(2, '0')
-        : '';
-    final red = color.red.toRadixString(16).padLeft(2, '0');
-    final green = color.green.toRadixString(16).padLeft(2, '0');
-    final blue = color.blue.toRadixString(16).padLeft(2, '0');
+    String componentToHex(double component) {
+      return (component * 255.0)
+          .round()
+          .clamp(0, 255)
+          .toRadixString(16)
+          .padLeft(2, '0');
+    }
+
+    final alpha = includeAlpha ? componentToHex(color.a) : '';
+    final red = componentToHex(color.r);
+    final green = componentToHex(color.g);
+    final blue = componentToHex(color.b);
 
     return '#$alpha$red$green$blue'.toUpperCase();
   }

@@ -107,6 +107,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
   Widget _buildDeleteButton() {
     return IconButton(
       onPressed: () async {
+        final productProvider = context.read<ProductProvider>();
         final confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -131,7 +132,8 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
         );
 
         if (confirm == true) {
-          await context.read<ProductProvider>().deleteProduct(productArg!.id!);
+          await productProvider.deleteProduct(productArg!.id!);
+          if (!mounted) return;
           Navigator.pop(context);
         }
       },
@@ -169,6 +171,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
             _enabledModifierIds,
           );
 
+          if (!mounted) return;
           Navigator.pop(context);
         }
       },
@@ -352,7 +355,8 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: colors.map((color) {
-                final isSelected = (field.value?.value ?? 0) == color.value;
+                final isSelected =
+                    (field.value?.toARGB32() ?? 0) == color.toARGB32();
                 return GestureDetector(
                   onTap: () => field.didChange(color),
                   child: Container(

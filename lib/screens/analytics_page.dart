@@ -344,60 +344,58 @@ class _DateRangePickerState extends State<_DateRangePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Row(
-        children: [
-          SizedBox(width: 8),
-          _DateChip(
-            label: isSameDay(_rangeStart, _rangeEnd)
-                ? _formatDate(_rangeStart)
-                : '${_formatDate(_rangeStart)} - ${_formatDate(_rangeEnd)}',
-            onTap: () async {
-              await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    child: Container(
-                      width: 400,
-                      height: 500,
-                      child: SfDateRangePicker(
-                        initialSelectedRange: PickerDateRange(
-                          _rangeStart,
-                          _rangeEnd,
-                        ),
-                        showActionButtons: true,
-                        selectionMode: DateRangePickerSelectionMode.range,
-
-                        onSelectionChanged: (args) {
-                          if (args.value is PickerDateRange) {
-                            final range = args.value as PickerDateRange;
-                            _tempStart = range.startDate;
-                            _tempEnd = range.endDate;
-                          }
-                        },
-
-                        onSubmit: (_) {
-                          if (_tempStart != null) {
-                            setState(() {
-                              _rangeStart = _tempStart!;
-                              _rangeEnd = _tempEnd ?? _tempStart!;
-                            });
-
-                            widget.onRangeChanged(_rangeStart, _rangeEnd);
-                          }
-                          Navigator.of(context).pop();
-                        },
-
-                        onCancel: () => Navigator.of(context).pop(),
+    return Row(
+      children: [
+        SizedBox(width: 8),
+        _DateChip(
+          label: isSameDay(_rangeStart, _rangeEnd)
+              ? _formatDate(_rangeStart)
+              : '${_formatDate(_rangeStart)} - ${_formatDate(_rangeEnd)}',
+          onTap: () async {
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  child: SizedBox(
+                    width: 400,
+                    height: 500,
+                    child: SfDateRangePicker(
+                      initialSelectedRange: PickerDateRange(
+                        _rangeStart,
+                        _rangeEnd,
                       ),
+                      showActionButtons: true,
+                      selectionMode: DateRangePickerSelectionMode.range,
+
+                      onSelectionChanged: (args) {
+                        if (args.value is PickerDateRange) {
+                          final range = args.value as PickerDateRange;
+                          _tempStart = range.startDate;
+                          _tempEnd = range.endDate;
+                        }
+                      },
+
+                      onSubmit: (_) {
+                        if (_tempStart != null) {
+                          setState(() {
+                            _rangeStart = _tempStart!;
+                            _rangeEnd = _tempEnd ?? _tempStart!;
+                          });
+
+                          widget.onRangeChanged(_rangeStart, _rangeEnd);
+                        }
+                        Navigator.of(context).pop();
+                      },
+
+                      onCancel: () => Navigator.of(context).pop(),
                     ),
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -443,7 +441,7 @@ class _TopItemsListView extends StatelessWidget {
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemCount: items.length,
-      separatorBuilder: (_, __) => Divider(height: 1),
+      separatorBuilder: (_, index) => Divider(height: 1),
       itemBuilder: (context, index) {
         final item = items[index];
         return Padding(
