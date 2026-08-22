@@ -46,7 +46,10 @@ class _ItemsPageState extends State<ItemsPage> {
                         onPressed: () {
                           Scaffold.of(context).openDrawer();
                         },
-                        icon: Icon(FontAwesomeIcons.bars, color: Colors.white),
+                        icon: FaIcon(
+                          FontAwesomeIcons.bars,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     SizedBox(width: 10),
@@ -225,7 +228,7 @@ class _ItemsPageState extends State<ItemsPage> {
     );
   }
 
-  Widget _menuButton(String label, IconData icon) {
+  Widget _menuButton(String label, FaIconData icon) {
     bool selected = selectedTab == label;
 
     return Container(
@@ -236,7 +239,7 @@ class _ItemsPageState extends State<ItemsPage> {
           children: [
             Container(
               padding: EdgeInsets.only(left: 8, right: 32),
-              child: Icon(
+              child: FaIcon(
                 icon,
                 color: selected ? Colors.teal : Colors.black45,
                 size: 20,

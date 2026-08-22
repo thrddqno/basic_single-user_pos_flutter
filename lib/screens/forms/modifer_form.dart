@@ -60,7 +60,10 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Column(children: [_buildHeader(), _buildForm()]));
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: Column(children: [_buildHeader(), _buildForm()]),
+    );
   }
 
   Widget _buildHeader() {
@@ -80,7 +83,7 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
+                    icon: const FaIcon(
                       FontAwesomeIcons.angleLeft,
                       color: Colors.white,
                     ),
@@ -263,51 +266,56 @@ class _ModifierFormPageState extends State<ModifierFormPage> {
   }
 
   Widget _buildForm() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 200, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
-        child: FormBuilder(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FormBuilderTextField(
-                name: 'modifierName',
-                initialValue: initialModifierValues['name'],
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                ]),
-              ),
-              ..._options.asMap().entries.map((entry) {
-                return _optionRow(entry.value);
-              }),
-              const SizedBox(height: 20),
-              TextButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _options.add(
-                      ModifierOption(
-                        id: null,
-                        modifierId: modifierArg?.id ?? 0,
-                        name: '',
-                        tempKey: DateTime.now().millisecondsSinceEpoch
-                            .toString(),
-                      ),
-                    );
-                  });
-                },
-                icon: const Icon(Icons.add),
-                label: const Text('Add Option'),
-              ),
-            ],
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 200, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
+          child: FormBuilder(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FormBuilderTextField(
+                  name: 'modifierName',
+                  initialValue: initialModifierValues['name'],
+                  decoration: const InputDecoration(labelText: 'Name'),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                  ]),
+                ),
+                ..._options.asMap().entries.map((entry) {
+                  return _optionRow(entry.value);
+                }),
+                const SizedBox(height: 20),
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _options.add(
+                        ModifierOption(
+                          id: null,
+                          modifierId: modifierArg?.id ?? 0,
+                          name: '',
+                          tempKey: DateTime.now().millisecondsSinceEpoch
+                              .toString(),
+                        ),
+                      );
+                    });
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Option'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

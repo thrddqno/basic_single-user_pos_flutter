@@ -113,6 +113,7 @@ class _CheckOutCartState extends State<CheckOutCart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Row(
         children: [
           Expanded(
@@ -151,7 +152,7 @@ class _CheckOutCartState extends State<CheckOutCart> {
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              icon: Icon(
+                              icon: FaIcon(
                                 FontAwesomeIcons.arrowLeft,
                                 color: Colors.white,
                               ),
@@ -166,136 +167,147 @@ class _CheckOutCartState extends State<CheckOutCart> {
                 Expanded(
                   child: Container(
                     margin: EdgeInsets.only(left: 1),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
                     color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Selector<CartProvider, double>(
-                          selector: (_, cart) => cart.total,
-                          builder: (context, total, _) => Text(
-                            '₱${formatPrice(total)}',
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 40,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Selector<CartProvider, double>(
+                            selector: (_, cart) => cart.total,
+                            builder: (context, total, _) => Text(
+                              '₱${formatPrice(total)}',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 48,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Total Amount Due',
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
-                        ),
-                        Text(
-                          'Total Amount Due',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
 
-                        SizedBox(height: 100),
+                          SizedBox(height: 100),
 
-                        Row(
-                          children: [
-                            Icon(Icons.payments, color: Colors.grey),
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: FormBuilderTextField(
-                                name: 'cashReceived',
-                                controller: _cashController,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  labelText: 'Cash Received',
-
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 16),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: Size(120, 60),
-                                shape: BeveledRectangleBorder(),
-                                elevation: 0,
-                                backgroundColor: Colors.teal,
-                              ),
-                              onPressed: () => _checkout(method: 'cash'),
-                              child: Text(
-                                'CHARGE',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(height: 24),
-
-                        Selector<CartProvider, double>(
-                          selector: (_, cart) => cart.total,
-                          builder: (context, total, _) {
-                            return Row(
-                              spacing: 20,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: BillsHelper.predictChange(total).map((
-                                value,
-                              ) {
-                                return Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      side: BorderSide(
-                                        color: Colors.grey.shade200,
-                                      ),
-                                      minimumSize: Size(120, 60),
-                                      shape: BeveledRectangleBorder(),
-                                      elevation: 0,
-                                      backgroundColor: Colors.grey.shade100,
-                                    ),
-                                    onPressed: () {
-                                      _cashController.text = value.toString();
-                                      _checkout(method: 'cash');
-                                    },
-                                    child: Text(
-                                      value.toString(),
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 24),
-
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            side: BorderSide(color: Colors.grey.shade200),
-                            minimumSize: Size(double.infinity, 60),
-                            shape: BeveledRectangleBorder(),
-                            elevation: 0,
-                            backgroundColor: Colors.grey.shade100,
-                          ),
-                          onPressed: () => _checkout(method: 'card'),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            spacing: 10,
+                          Row(
                             children: [
-                              Icon(Icons.payment, color: Colors.grey.shade600),
-                              Text(
-                                'Card',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
+                              Icon(Icons.payments, color: Colors.grey),
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: FormBuilderTextField(
+                                  name: 'cashReceived',
+                                  controller: _cashController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    labelText: 'Cash Received',
+
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(120, 60),
+                                  shape: BeveledRectangleBorder(),
+                                  elevation: 0,
+                                  backgroundColor: Colors.teal,
+                                ),
+                                onPressed: () => _checkout(method: 'cash'),
+                                child: Text(
+                                  'CHARGE',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+
+                          SizedBox(height: 24),
+
+                          Selector<CartProvider, double>(
+                            selector: (_, cart) => cart.total,
+                            builder: (context, total, _) {
+                              return Row(
+                                spacing: 20,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: BillsHelper.predictChange(total).map((
+                                  value,
+                                ) {
+                                  return Expanded(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        side: BorderSide(
+                                          color: Colors.grey.shade200,
+                                        ),
+                                        minimumSize: Size(120, 60),
+                                        shape: BeveledRectangleBorder(),
+                                        elevation: 0,
+                                        backgroundColor: Colors.grey.shade100,
+                                      ),
+                                      onPressed: () {
+                                        _cashController.text = value.toString();
+                                        _checkout(method: 'cash');
+                                      },
+                                      child: Text(
+                                        value.toString(),
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              );
+                            },
+                          ),
+
+                          SizedBox(height: 24),
+
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              side: BorderSide(color: Colors.grey.shade200),
+                              minimumSize: Size(double.infinity, 60),
+                              shape: BeveledRectangleBorder(),
+                              elevation: 0,
+                              backgroundColor: Colors.grey.shade100,
+                            ),
+                            onPressed: () => _checkout(method: 'card'),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              spacing: 10,
+                              children: [
+                                Icon(
+                                  Icons.payment,
+                                  color: Colors.grey.shade600,
+                                ),
+                                Text(
+                                  'Card',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: MediaQuery.viewInsetsOf(context).bottom,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

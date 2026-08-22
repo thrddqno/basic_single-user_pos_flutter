@@ -14,55 +14,48 @@ class ReceiptRepository {
 
   Future<int> insertReceipt(Receipt receipt) async {
     final db = await _databaseService.database;
-
-    final receiptId = await db.insert('receipts', {
-      'date': receipt.date.toIso8601String(),
-      'payment_method': receipt.paymentMethod,
-      'cash_received': receipt.cashReceived,
-    });
-
-    for (var item in receipt.items) {
-      final receiptItemId = await db.insert('receipt_items', {
-        'receipt_id': receiptId,
-        'product_id': item.product.id,
-        'quantity': item.quantity,
-        'product_name': item.product.name,
-        'product_price': item.product.price,
-        'product_cost': item.productCost,
-        'category_id': item.productCategoryId,
+    return await db.transaction((txn) async {
+      final receiptId = await txn.insert('receipts', {
+        'date': receipt.date.toIso8601String(),
+        'payment_method': receipt.paymentMethod,
+        'cash_received': receipt.cashReceived,
       });
 
-      for (var option in item.options) {
-        await db.insert('receipt_item_options', {
-          'receipt_item_id': receiptItemId,
-          'modifier_option_id': option.id,
-          'option_name': option.name,
-          'option_price': option.price,
-        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      for (var item in receipt.items) {
+        final receiptItemId = await txn.insert('receipt_items', {
+          'receipt_id': receiptId,
+          'product_id': item.product.id,
+          'quantity': item.quantity,
+          'product_name': item.product.name,
+          'product_price': item.product.price,
+          'product_cost': item.productCost,
+          'category_id': item.productCategoryId,
+        });
+
+        for (var option in item.options) {
+          await txn.insert('receipt_item_options', {
+            'receipt_item_id': receiptItemId,
+            'modifier_option_id': option.id,
+            'option_name': option.name,
+            'option_price': option.price,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
       }
-    }
-    return receiptId;
+      return receiptId;
+    });
   }
 
   Future<List<Receipt>> getAll() async {
     final db = await _databaseService.database;
 
-    final receiptRow = await db.query(
+    final receiptRows = await db.query(
       'receipts',
-      columns: ['id'],
       orderBy: 'date DESC',
     );
 
-    final receipts = <Receipt>[];
+    if (receiptRows.isEmpty) return [];
 
-    for (final row in receiptRow) {
-      final receiptId = row['id'] as int;
-      final receipt = await getReceiptById(receiptId);
-      if (receipt != null) {
-        receipts.add(receipt);
-      }
-    }
-    return receipts;
+    return _loadReceiptsBulk(db, receiptRows);
   }
 
   Future<List<Receipt>> getReceiptByDateRange(
@@ -70,21 +63,99 @@ class ReceiptRepository {
     DateTime end,
   ) async {
     final db = await _databaseService.database;
-    final rows = await db.query(
+    final receiptRows = await db.query(
       'receipts',
       where: 'date BETWEEN ? AND ?',
       whereArgs: [start.toIso8601String(), end.toIso8601String()],
       orderBy: 'date ASC',
     );
 
-    final receipts = <Receipt>[];
+    if (receiptRows.isEmpty) return [];
 
-    for (final row in rows) {
-      final receiptId = row['id'] as int;
-      final receipt = await getReceiptById(receiptId);
-      if (receipt != null) {
-        receipts.add(receipt);
-      }
+    return _loadReceiptsBulk(db, receiptRows);
+  }
+
+  Future<List<Receipt>> _loadReceiptsBulk(
+    Database db,
+    List<Map<String, dynamic>> receiptRows,
+  ) async {
+    final receiptIds = receiptRows.map((r) => r['id'] as int).toList();
+    final placeholders = List.filled(receiptIds.length, '?').join(',');
+
+    final allItemRows = await db.rawQuery(
+      'SELECT * FROM receipt_items WHERE receipt_id IN ($placeholders)',
+      receiptIds,
+    );
+
+    final itemIds = allItemRows.map((r) => r['id'] as int).toList();
+    final allOptionRows = itemIds.isNotEmpty
+        ? await db.rawQuery(
+            '''
+            SELECT receipt_item_id, modifier_option_id, option_name, option_price
+            FROM receipt_item_options
+            WHERE receipt_item_id IN (${List.filled(itemIds.length, '?').join(',')})
+            ''',
+            itemIds,
+          )
+        : <Map<String, dynamic>>[];
+
+    final optionsByItemId = <int, List<Map<String, dynamic>>>{};
+    for (var optRow in allOptionRows) {
+      final itemId = optRow['receipt_item_id'] as int;
+      optionsByItemId.putIfAbsent(itemId, () => []).add(optRow);
+    }
+
+    final itemsByReceiptId = <int, List<ReceiptItem>>{};
+    for (var row in allItemRows) {
+      final receiptId = row['receipt_id'] as int;
+      final productId = row['product_id'] as int;
+
+      final product = Product(
+        id: productId,
+        name: row['product_name'] as String,
+        categoryId: (row['category_id'] as num?)?.toInt() ?? 1,
+        price: (row['product_price'] as num).toDouble(),
+        cost: (row['product_cost'] as num?)?.toDouble(),
+        enabledModifierIds: const [],
+        color: '#9E9E9E',
+      );
+
+      final optionRowsForItem = optionsByItemId[row['id'] as int] ?? [];
+      final options = optionRowsForItem.map((optRow) {
+        return ModifierOption(
+          id: optRow['modifier_option_id'] as int?,
+          modifierId: null,
+          name: optRow['option_name'] as String,
+          price: (optRow['option_price'] as num).toDouble(),
+        );
+      }).toList();
+
+      itemsByReceiptId
+          .putIfAbsent(receiptId, () => [])
+          .add(
+            ReceiptItem(
+              id: row['id'] as int,
+              product: product,
+              options: options,
+              quantity: row['quantity'] as int,
+              productCost: (row['product_cost'] as num?)?.toDouble(),
+              productCategoryId: (row['category_id'] as num?)?.toInt(),
+            ),
+          );
+    }
+
+    final receipts = <Receipt>[];
+    for (final r in receiptRows) {
+      final id = r['id'] as int;
+      receipts.add(
+        Receipt(
+          id: id,
+          date: DateTime.parse(r['date'] as String),
+          items: itemsByReceiptId[id] ?? [],
+          paymentMethod: r['payment_method'] as String,
+          cashReceived: r['cash_received'] as double?,
+        ),
+      );
     }
     return receipts;
   }
@@ -99,143 +170,28 @@ class ReceiptRepository {
     );
     if (receiptRow.isEmpty) return null;
 
-    final r = receiptRow.first;
-
-    final itemRows = await db.query(
-      'receipt_items',
-      where: 'receipt_id = ?',
-      whereArgs: [id],
-    );
-
-    final allOptionRows = await db.rawQuery(
-      '''
-      SELECT rio.receipt_item_id, rio.modifier_option_id, rio.option_name, rio.option_price
-      FROM receipt_item_options rio
-      INNER JOIN receipt_items ri ON rio.receipt_item_id = ri.id
-      WHERE ri.receipt_id = ?
-      ''',
-      [id],
-    );
-
-    final optionsByItemId = <int, List<Map<String, dynamic>>>{};
-    final optionIdsNeedingFallback = <int>{};
-    for (var optRow in allOptionRows) {
-      final itemId = optRow['receipt_item_id'] as int;
-      optionsByItemId.putIfAbsent(itemId, () => []).add(optRow);
-      final snapshotName = optRow['option_name'] as String?;
-      final snapshotPrice = optRow['option_price'];
-      final optId = optRow['modifier_option_id'] as int?;
-      if (optId != null && (snapshotName == null || snapshotPrice == null)) {
-        optionIdsNeedingFallback.add(optId);
-      }
-    }
-
-    final optionFallbackMap = <int, ModifierOption>{};
-    if (optionIdsNeedingFallback.isNotEmpty) {
-      final placeholders = List.filled(
-        optionIdsNeedingFallback.length,
-        '?',
-      ).join(',');
-      final moRows = await db.rawQuery(
-        'SELECT id, modifier_id, name, price FROM modifier_options WHERE id IN ($placeholders)',
-        optionIdsNeedingFallback.toList(),
-      );
-      for (var mo in moRows) {
-        optionFallbackMap[mo['id'] as int] = ModifierOption.fromMap(mo);
-      }
-    }
-
-    final items = <ReceiptItem>[];
-    for (var row in itemRows) {
-      final productId = row['product_id'] as int;
-      Product product =
-          await productRepository.getById(productId) ??
-          _productFromSnapshot(
-            productId,
-            row['product_name'] as String?,
-            row['product_price'],
-          );
-
-      final optionRowsForItem = optionsByItemId[row['id'] as int] ?? [];
-      final options = <ModifierOption>[];
-      for (var optRow in optionRowsForItem) {
-        final optId = optRow['modifier_option_id'] as int?;
-        final snapshotName = optRow['option_name'] as String?;
-        final snapshotPrice = optRow['option_price'];
-
-        if (snapshotName != null && snapshotPrice != null) {
-          options.add(
-            ModifierOption(
-              id: optId,
-              modifierId: null,
-              name: snapshotName,
-              price: (snapshotPrice as num).toDouble(),
-            ),
-          );
-        } else if (optId != null) {
-          options.add(
-            optionFallbackMap[optId] ??
-                ModifierOption(
-                  id: optId,
-                  modifierId: null,
-                  name: 'Unknown option',
-                  price: 0,
-                ),
-          );
-        }
-      }
-
-      items.add(
-        ReceiptItem(
-          id: row['id'] as int,
-          product: product,
-          options: options,
-          quantity: row['quantity'] as int,
-          productCost: product.cost,
-          productCategoryId: product.categoryId,
-        ),
-      );
-    }
-
-    return Receipt(
-      id: r['id'] as int,
-      date: DateTime.parse(r['date'] as String),
-      items: items,
-      paymentMethod: r['payment_method'] as String,
-      cashReceived: r['cash_received'] as double?,
-    );
-  }
-
-  Product _productFromSnapshot(int id, String? name, dynamic price) {
-    return Product(
-      id: id,
-      name: name ?? 'Unknown product',
-      categoryId: 1,
-      price: (price is num) ? price.toDouble() : 0,
-      enabledModifierIds: const [],
-      cost: null,
-      color: '#9E9E9E',
-    );
+    final receipts = await _loadReceiptsBulk(db, receiptRow);
+    return receipts.isNotEmpty ? receipts.first : null;
   }
 
   Future<void> deleteReceipt(int id) async {
     final db = await _databaseService.database;
-
-    final itemRows = await db.query(
-      'receipt_items',
-      where: 'receipt_id = ?',
-      whereArgs: [id],
-    );
-    for (var row in itemRows) {
-      await db.delete(
-        'receipt_item_options',
-        where: 'receipt_item_id = ?',
-        whereArgs: [row['id']],
+    await db.transaction((txn) async {
+      final itemRows = await txn.query(
+        'receipt_items',
+        where: 'receipt_id = ?',
+        whereArgs: [id],
       );
-    }
+      for (var row in itemRows) {
+        await txn.delete(
+          'receipt_item_options',
+          where: 'receipt_item_id = ?',
+          whereArgs: [row['id']],
+        );
+      }
 
-    await db.delete('receipt_items', where: 'receipt_id = ?', whereArgs: [id]);
-
-    await db.delete('receipts', where: 'id = ?', whereArgs: [id]);
+      await txn.delete('receipt_items', where: 'receipt_id = ?', whereArgs: [id]);
+      await txn.delete('receipts', where: 'id = ?', whereArgs: [id]);
+    });
   }
 }

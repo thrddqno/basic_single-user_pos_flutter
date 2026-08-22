@@ -52,7 +52,7 @@ class _SalePageState extends State<SalePage> {
                               onPressed: () {
                                 Scaffold.of(context).openDrawer();
                               },
-                              icon: Icon(
+                              icon: FaIcon(
                                 FontAwesomeIcons.bars,
                                 color: Colors.white,
                               ),

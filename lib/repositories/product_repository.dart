@@ -31,26 +31,24 @@ class ProductRepository {
   Future<Product?> getById(int id) async {
     final db = await _databaseService.database;
 
-    final result = await db.query(
-      'products',
-      where: 'id = ?',
-      whereArgs: [id],
-      limit: 1,
+    final result = await db.rawQuery(
+      '''
+      SELECT p.*, GROUP_CONCAT(pm.modifier_id ORDER BY pm.modifier_id) AS enabled_modifier_ids
+      FROM products p
+      LEFT JOIN product_modifiers pm ON p.id = pm.product_id
+      WHERE p.id = ?
+      GROUP BY p.id
+      ''',
+      [id],
     );
 
     if (result.isEmpty) return null;
 
-    final modifierResult = await db.query(
-      'product_modifiers',
-      where: 'product_id = ?',
-      whereArgs: [id],
-    );
-
-    final enabledModifierIds = modifierResult
-        .map((r) => r['modifier_id'] as int)
-        .toList();
-
     final row = result.first;
+    final modifierStr = row['enabled_modifier_ids'] as String?;
+    final enabledModifierIds = modifierStr != null
+        ? modifierStr.split(',').map(int.parse).toList()
+        : <int>[];
 
     return Product(
       id: row['id'] as int,
@@ -63,67 +61,32 @@ class ProductRepository {
     );
   }
 
-  Future<void> updateProductModifiers(
-    int productId,
-    List<int> modifierIds,
-  ) async {
-    final db = await _databaseService.database;
-
-    await db.transaction((txn) async {
-      await txn.delete(
-        'product_modifiers',
-        where: 'product_id = ?',
-        whereArgs: [productId],
-      );
-
-      final validModifierIds = <int>[];
-      for (final id in modifierIds) {
-        final exists = Sqflite.firstIntValue(
-          await txn.rawQuery('SELECT COUNT(*) FROM modifiers WHERE id = ?', [
-            id,
-          ]),
-        )!;
-        if (exists > 0) validModifierIds.add(id);
-      }
-
-      for (final modifierId in validModifierIds) {
-        await txn.insert('product_modifiers', {
-          'product_id': productId,
-          'modifier_id': modifierId,
-        }, conflictAlgorithm: ConflictAlgorithm.ignore);
-      }
-    });
-  }
-
   Future<List<Product>> getAll() async {
     final db = await _databaseService.database;
 
-    final productRows = await db.query('products');
+    final productRows = await db.rawQuery('''
+      SELECT p.*, GROUP_CONCAT(pm.modifier_id ORDER BY pm.modifier_id) AS enabled_modifier_ids
+      FROM products p
+      LEFT JOIN product_modifiers pm ON p.id = pm.product_id
+      GROUP BY p.id
+    ''');
 
-    final modifierRows = await db.query('product_modifiers');
+    return productRows.map((row) {
+      final modifierStr = row['enabled_modifier_ids'] as String?;
+      final enabledModifierIds = modifierStr != null
+          ? modifierStr.split(',').map(int.parse).toList()
+          : <int>[];
 
-    final modifiersByProduct = <int, List<int>>{};
-    for (var row in modifierRows) {
-      final pid = row['product_id'] as int;
-      modifiersByProduct
-          .putIfAbsent(pid, () => [])
-          .add(row['modifier_id'] as int);
-    }
-
-    final products = productRows.map((row) {
-      final productId = row['id'] as int;
       return Product(
-        id: productId,
+        id: row['id'] as int,
         name: row['name'] as String,
         categoryId: row['category_id'] as int,
         price: (row['price'] as num).toDouble(),
         cost: (row['cost'] as num?)?.toDouble(),
         color: row['color'] as String,
-        enabledModifierIds: modifiersByProduct[productId] ?? [],
+        enabledModifierIds: enabledModifierIds,
       );
     }).toList();
-
-    return products;
   }
 
   Future<void> update(Product product) async {
@@ -145,28 +108,11 @@ class ProductRepository {
 
       await txn.delete(
         'product_modifiers',
-        where:
-            'product_id = ? AND modifier_id NOT IN (SELECT id FROM modifiers)',
-        whereArgs: [product.id],
-      );
-
-      await txn.delete(
-        'product_modifiers',
         where: 'product_id = ?',
         whereArgs: [product.id],
       );
 
-      final validModifierIds = <int>[];
-      for (final id in product.enabledModifierIds) {
-        final exists = Sqflite.firstIntValue(
-          await txn.rawQuery('SELECT COUNT(*) FROM modifiers WHERE id = ?', [
-            id,
-          ]),
-        )!;
-        if (exists > 0) validModifierIds.add(id);
-      }
-
-      for (final modifierId in validModifierIds) {
+      for (final modifierId in product.enabledModifierIds) {
         await txn.insert('product_modifiers', {
           'product_id': product.id,
           'modifier_id': modifierId,

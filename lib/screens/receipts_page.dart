@@ -74,7 +74,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                               onPressed: () {
                                 Scaffold.of(context).openDrawer();
                               },
-                              icon: Icon(
+                              icon: FaIcon(
                                 FontAwesomeIcons.bars,
                                 color: Colors.white,
                               ),
@@ -210,7 +210,7 @@ class _ReceiptsPageState extends State<ReceiptsPage> {
                             decoration: const BoxDecoration(color: Colors.teal),
                             child: Row(
                               children: [
-                                const Icon(
+                                const FaIcon(
                                   FontAwesomeIcons.receipt,
                                   color: Colors.white,
                                 ),

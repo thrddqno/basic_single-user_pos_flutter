@@ -76,7 +76,7 @@ class DrawerWidget extends StatelessWidget {
 }
 
 class DrawerTile extends StatelessWidget {
-  final IconData icon;
+  final FaIconData icon;
   final String label;
   final String routeName;
   final String currentRoute;
@@ -107,7 +107,7 @@ class DrawerTile extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.only(left: 8, right: 32),
-            child: Icon(
+            child: FaIcon(
               icon,
               color: selected ? Colors.teal : Colors.black45,
               size: 20,

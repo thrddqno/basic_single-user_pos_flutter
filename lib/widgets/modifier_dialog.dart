@@ -87,62 +87,149 @@ class _ModifierDialogState extends State<ModifierDialog> {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(horizontal: 100, vertical: 24),
-      child: Container(
-        decoration: BoxDecoration(color: Colors.white),
-        padding: EdgeInsets.all(8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.clear),
-                ),
-                Expanded(
-                  child: Text(
-                    '${widget.product.name} - ₱${formatPrice(totalPrice)}',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                TextButton(
-                  onPressed: _saveChanges,
-                  child: Text(
-                    widget.editingItem != null ? 'SAVE' : 'ADD',
-                    style: TextStyle(color: Colors.teal),
-                  ),
-                ),
-              ],
-            ),
-            Divider(),
-            Expanded(
-              child: ListView(
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: Container(
+          decoration: BoxDecoration(color: Colors.white),
+          padding: EdgeInsets.all(8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
                 children: [
-                  ...widget.product.enabledModifierIds.map((modifierId) {
-                    final modifier = widget.modifierProvider.modifiers
-                        .firstWhere(
-                          (m) => m.id == modifierId,
-                          orElse: () => Modifier(
-                            id: modifierId,
-                            name: 'Unknown Modifier',
+                  IconButton(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(Icons.clear),
+                  ),
+                  Expanded(
+                    child: Text(
+                      '${widget.product.name} - ₱${formatPrice(totalPrice)}',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _saveChanges,
+                    child: Text(
+                      widget.editingItem != null ? 'SAVE' : 'ADD',
+                      style: TextStyle(color: Colors.teal),
+                    ),
+                  ),
+                ],
+              ),
+              Divider(),
+              Expanded(
+                child: ListView(
+                  children: [
+                    ...widget.product.enabledModifierIds.map((modifierId) {
+                      final modifier = widget.modifierProvider.modifiers
+                          .firstWhere(
+                            (m) => m.id == modifierId,
+                            orElse: () => Modifier(
+                              id: modifierId,
+                              name: 'Unknown Modifier',
+                            ),
+                          );
+
+                      final options = widget.modifierProvider
+                          .optionsForModifier(modifierId);
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 8,
+                            ),
+                            child: Text(
+                              modifier.name,
+                              style: TextStyle(
+                                color: Colors.teal,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
-                        );
+                          SizedBox(
+                            height:
+                                ((options.length / 2).ceil() * 55) +
+                                ((options.length / 2).ceil() * 16),
+                            child: GridView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: options.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: 16,
+                                    crossAxisSpacing: 16,
+                                    childAspectRatio: 10,
+                                  ),
+                              itemBuilder: (context, index) {
+                                final option = options[index];
+                                final isSelected =
+                                    selectedOptionsPerModifier[modifierId]!
+                                        .contains(option.id);
 
-                    final options = widget.modifierProvider.optionsForModifier(
-                      modifierId,
-                    );
-
-                    return Column(
+                                return InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      if (isSelected) {
+                                        selectedOptionsPerModifier[modifierId]!
+                                            .remove(option.id);
+                                      } else {
+                                        selectedOptionsPerModifier[modifierId]!
+                                            .add(option.id!);
+                                      }
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? Colors.teal.withValues(alpha: 0.3)
+                                          : Colors.transparent,
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? Colors.teal
+                                            : Colors.grey.withValues(
+                                                alpha: 0.3,
+                                              ),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(option.name),
+                                        Text('₱${formatPrice(option.price)}'),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 8,
-                          ),
+                          padding: const EdgeInsets.all(8),
                           child: Text(
-                            modifier.name,
+                            'Quantity',
                             style: TextStyle(
                               color: Colors.teal,
                               fontWeight: FontWeight.bold,
@@ -150,151 +237,83 @@ class _ModifierDialogState extends State<ModifierDialog> {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height:
-                              ((options.length / 2).ceil() * 55) +
-                              ((options.length / 2).ceil() * 16),
-                          child: GridView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: options.length,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: 16,
-                                  crossAxisSpacing: 16,
-                                  childAspectRatio: 10,
-                                ),
-                            itemBuilder: (context, index) {
-                              final option = options[index];
-                              final isSelected =
-                                  selectedOptionsPerModifier[modifierId]!
-                                      .contains(option.id);
-
-                              return InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      selectedOptionsPerModifier[modifierId]!
-                                          .remove(option.id);
-                                    } else {
-                                      selectedOptionsPerModifier[modifierId]!
-                                          .add(option.id!);
-                                    }
-                                  });
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16),
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? Colors.teal.withValues(alpha: 0.3)
-                                        : Colors.transparent,
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? Colors.teal
-                                          : Colors.grey.withValues(alpha: 0.3),
-                                      width: 1.5,
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey[100],
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: Colors.grey,
+                                      width: 1,
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(option.name),
-                                      Text('₱${formatPrice(option.price)}'),
-                                    ],
-                                  ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          'Quantity',
-                          style: TextStyle(
-                            color: Colors.teal,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[100],
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.grey,
-                                    width: 1,
-                                  ),
+                                onPressed: () {
+                                  final current =
+                                      int.tryParse(quantityController.text) ??
+                                      1;
+                                  if (current > 0) {
+                                    setState(() {
+                                      quantityController.text = (current - 1)
+                                          .toString();
+                                    });
+                                  }
+                                },
+                                child: Icon(Icons.remove),
+                              ),
+                            ),
+                            Expanded(
+                              child: TextField(
+                                controller: quantityController,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  labelText: 'Quantity',
                                 ),
                               ),
-                              onPressed: () {
-                                final current =
-                                    int.tryParse(quantityController.text) ?? 1;
-                                if (current > 0) {
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey[100],
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: Colors.grey,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  final current =
+                                      int.tryParse(quantityController.text) ??
+                                      1;
                                   setState(() {
-                                    quantityController.text = (current - 1)
+                                    quantityController.text = (current + 1)
                                         .toString();
                                   });
-                                }
-                              },
-                              child: Icon(Icons.remove),
-                            ),
-                          ),
-                          Expanded(
-                            child: TextField(
-                              controller: quantityController,
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
-                              decoration: const InputDecoration(
-                                labelText: 'Quantity',
+                                },
+                                child: Icon(Icons.add),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey[100],
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.grey,
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              onPressed: () {
-                                final current =
-                                    int.tryParse(quantityController.text) ?? 1;
-                                setState(() {
-                                  quantityController.text = (current + 1)
-                                      .toString();
-                                });
-                              },
-                              child: Icon(Icons.add),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

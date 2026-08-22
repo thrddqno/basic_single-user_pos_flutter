@@ -24,11 +24,12 @@ class DatabaseService {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -128,5 +129,20 @@ class DatabaseService {
         FOREIGN KEY(modifier_option_id) REFERENCES modifier_options(id) ON DELETE CASCADE
       )
     ''');
+
+    await _createIndexes(db);
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _createIndexes(db);
+    }
+  }
+
+  Future<void> _createIndexes(Database db) async {
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_modifier_options_modifier_id ON modifier_options(modifier_id)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_receipt_items_receipt_id ON receipt_items(receipt_id)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_receipts_date ON receipts(date)');
   }
 }

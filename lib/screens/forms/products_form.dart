@@ -54,7 +54,10 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Column(children: [_buildHeader(), _buildForm()]));
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: Column(children: [_buildHeader(), _buildForm()]),
+    );
   }
 
   Widget _buildHeader() {
@@ -74,7 +77,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
+                    icon: const FaIcon(
                       FontAwesomeIcons.angleLeft,
                       color: Colors.white,
                     ),
@@ -158,18 +161,11 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
             enabledModifierIds: _enabledModifierIds,
           );
 
-          int productId;
           if (productArg == null) {
-            productId = await productProvider.addProduct(product);
+            await productProvider.addProduct(product);
           } else {
-            productId = productArg!.id!;
             await productProvider.updateProduct(product);
           }
-
-          await productProvider.updateProductModifiers(
-            productId,
-            _enabledModifierIds,
-          );
 
           if (!mounted) return;
           Navigator.pop(context);
@@ -187,38 +183,43 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
   }
 
   Widget _buildForm() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 200, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
-        child: FormBuilder(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FormBuilderTextField(
-                name: 'productName',
-                initialValue: initialValues['productName'],
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                ]),
-              ),
-              const SizedBox(height: 20),
-              _buildCategoryDropdown(),
-              const SizedBox(height: 20),
-              _buildCostAndPriceFields(),
-              const SizedBox(height: 40),
-              _buildModifiersSection(),
-              const SizedBox(height: 40),
-              _buildColorPicker(),
-            ],
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 200, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
+          child: FormBuilder(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FormBuilderTextField(
+                  name: 'productName',
+                  initialValue: initialValues['productName'],
+                  decoration: const InputDecoration(labelText: 'Name'),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                  ]),
+                ),
+                const SizedBox(height: 20),
+                _buildCategoryDropdown(),
+                const SizedBox(height: 20),
+                _buildCostAndPriceFields(),
+                const SizedBox(height: 40),
+                _buildModifiersSection(),
+                const SizedBox(height: 40),
+                _buildColorPicker(),
+              ],
+            ),
           ),
         ),
       ),

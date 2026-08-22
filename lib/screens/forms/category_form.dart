@@ -35,7 +35,10 @@ class _CategoryFormPageState extends State<CategoryFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Column(children: [_buildHeader(), _buildForm()]));
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: Column(children: [_buildHeader(), _buildForm()]),
+    );
   }
 
   Widget _buildHeader() {
@@ -55,7 +58,7 @@ class _CategoryFormPageState extends State<CategoryFormPage> {
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
+                    icon: const FaIcon(
                       FontAwesomeIcons.angleLeft,
                       color: Colors.white,
                     ),
@@ -158,29 +161,34 @@ class _CategoryFormPageState extends State<CategoryFormPage> {
   }
 
   Widget _buildForm() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 200, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
-        child: FormBuilder(
-          key: _formKey,
-          child: Column(
-            children: [
-              FormBuilderTextField(
-                name: 'categoryName',
-                initialValue: initialValues['categoryName'],
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                ]),
-              ),
-            ],
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 200, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(40),
+          child: FormBuilder(
+            key: _formKey,
+            child: Column(
+              children: [
+                FormBuilderTextField(
+                  name: 'categoryName',
+                  initialValue: initialValues['categoryName'],
+                  decoration: const InputDecoration(labelText: 'Name'),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                  ]),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -41,7 +41,10 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
                     Builder(
                       builder: (context) => IconButton(
                         onPressed: () => Scaffold.of(context).openDrawer(),
-                        icon: Icon(FontAwesomeIcons.bars, color: Colors.white),
+                        icon: FaIcon(
+                          FontAwesomeIcons.bars,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     SizedBox(width: 10),
